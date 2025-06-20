@@ -2,7 +2,7 @@
 // This system manages admin and user roles with PIN-based authentication
 
 // Default admin PIN - CHANGE THIS IN PRODUCTION!
-const DEFAULT_ADMIN_PIN = "8954";
+const DEFAULT_ADMIN_PIN = "9137";
 
 // Storage keys
 const ADMIN_PIN_KEY = "adminPin";

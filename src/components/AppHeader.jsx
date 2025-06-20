@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import { FaUserCircle, FaCalendarAlt, FaSun, FaMoon } from "react-icons/fa";
+import { toast } from 'react-toastify';
 
 const AppHeader = ({
   profile,
@@ -46,11 +47,11 @@ const AppHeader = ({
     const file = e.target.files[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      alert(t("Please upload an image file"));
+      toast.error(t("Please upload an image file"));
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      alert(t("Image size should be less than 5MB"));
+      toast.error(t("Image size should be less than 5MB"));
       return;
     }
     const reader = new FileReader();

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FaSearch, FaMicrophone, FaMicrophoneSlash, FaTimes, FaHistory, FaKeyboard } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 
 const SearchInput = ({ 
   searchQuery, 
@@ -54,7 +55,7 @@ const SearchInput = ({
   // Handle voice search
   const handleVoiceSearch = () => {
     if (!recognitionRef.current) {
-      alert('Speech recognition is not supported in your browser');
+      toast.error('Speech recognition is not supported in your browser');
       return;
     }
 

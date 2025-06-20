@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from 'react-toastify';
 
 function MovieLists() {
   const { t } = useTranslation();
@@ -15,7 +16,7 @@ function MovieLists() {
     if (
       lists.some((l) => l.name.toLowerCase() === newList.trim().toLowerCase())
     ) {
-      alert("List name already exists!");
+      toast.error("List name already exists!");
       return;
     }
     const updated = [...lists, { name: newList.trim(), movies: [] }];
@@ -40,7 +41,7 @@ function MovieLists() {
           i !== index && l.name.toLowerCase() === newName.trim().toLowerCase()
       )
     ) {
-      alert("List name already exists!");
+      toast.error("List name already exists!");
       return;
     }
     const updated = lists.map((l, i) =>

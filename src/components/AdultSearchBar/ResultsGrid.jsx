@@ -40,6 +40,7 @@ import {
   FaInfoCircle,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { FixedSizeList as List } from "react-window";
 
 const ResultsGrid = ({
   searchResults = [],
@@ -352,6 +353,435 @@ const ResultsGrid = ({
       </div>
     );
   };
+
+  // Virtualized rendering for large lists
+  if (searchResults.length > 100) {
+    return (
+      <List
+        height={600}
+        itemCount={searchResults.length}
+        itemSize={260}
+        width={"100%"}
+      >
+        {({ index, style }) => {
+          const video = searchResults[index];
+          return (
+            <div style={style} key={video.id}>
+              <div className="search-results-container">
+                <div className="search-results">
+                  <div
+                    className="result-card"
+                    onMouseEnter={() => setHoveredId(video.id)}
+                    onMouseLeave={() => {
+                      setHoveredId(null);
+                      setShowShare(null);
+                      setShowQuality(null);
+                      setShowQuickActions(null);
+                      setShowSuggestions(null);
+                      setShowVideoInfo(null);
+                    }}
+                    onClick={() => onVideoSelect(video)}
+                  >
+                    <div className="video-preview-container">
+                      <img
+                        src={video.thumbnail}
+                        alt={video.title}
+                        className="result-thumbnail"
+                      />
+                      <div className="quality-indicator">{video.quality || "HD"}</div>
+                      <div className="video-overlay">
+                        <button
+                          className="mute-toggle-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMuteToggle(video.id);
+                          }}
+                        >
+                          {isMuted[video.id] ? <FaVolumeMute /> : <FaVolumeUp />}
+                        </button>
+                        {hoveredId === video.id && (
+                          <div className="play-overlay">
+                            <FaPlay size={24} />
+                          </div>
+                        )}
+                        <div className="video-duration">
+                          <FaClock /> {video.duration || "00:00"}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="result-info pixel-ui">
+                      <div className="pixel-header">
+                        <span className="pixel-title">{video.title}</span>
+                        <span className="pixel-badge">{video.category || "Uncategorized"}</span>
+                        <span className="pixel-rating"><FaStar /> {(video.rating || 0).toFixed(1)}</span>
+                      </div>
+                      {Array.isArray(video.categories) && video.categories.length > 0 && (
+                        <div className="category-buttons" style={{ margin: '8px 0' }}>
+                          {video.categories.map((cat) => (
+                            <button
+                              key={cat}
+                              className="category-btn"
+                              title={cat}
+                              style={{ fontSize: '0.95em', padding: '6px 12px', marginRight: 6 }}
+                            >
+                              <span className="category-icon">
+                                {cat === 'amateur' ? '📱' :
+                                 cat === 'anal' ? '🍑' :
+                                 cat === 'blowjob' ? '💋' :
+                                 cat === 'creampie' ? '💦' :
+                                 cat === 'cumshot' ? '💧' :
+                                 cat === 'deepthroat' ? '👅' :
+                                 cat === 'facial' ? '🎭' :
+                                 cat === 'gangbang' ? '👥' :
+                                 cat === 'hardcore' ? '🔥' :
+                                 cat === 'lesbian' ? '👭' :
+                                 cat === 'massage' ? '💆' :
+                                 cat === 'masturbation' ? '✋' :
+                                 cat === 'oral' ? '👄' :
+                                 cat === 'pov' ? '📹' :
+                                 cat === 'rough' ? '⚡' :
+                                 cat === 'threesome' ? '👨‍👩‍👧' :
+                                 cat === 'toys' ? '🔌' :
+                                 cat === 'vintage' ? '📼' :
+                                 cat === 'young' ? '🌸' : '🎯'}
+                              </span>
+                              <span className="category-text">{cat}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="video-stats">
+                        <div className="stat-item">
+                          <FaEye />
+                          <span>{(video.views || 0).toLocaleString()} views</span>
+                        </div>
+                        <div className="stat-item">
+                          <FaHeart />
+                          <span>{(video.likes || 0).toLocaleString()}</span>
+                        </div>
+                        <div className="stat-item">
+                          <FaComment />
+                          <span>{(video.comments || 0).toLocaleString()}</span>
+                        </div>
+                      </div>
+
+                      <div className="result-meta">
+                        <div className="meta-item">
+                          <FaCalendarAlt />
+                          <span>{formatDate(video.uploadDate)}</span>
+                        </div>
+                        <div className="meta-item">
+                          <FaStar />
+                          <span>{(video.rating || 0).toFixed(1)}</span>
+                        </div>
+                        <div className="badge-tag">
+                          <FaTag />
+                          <span>{video.category || "Uncategorized"}</span>
+                        </div>
+                      </div>
+
+                      <div className="video-details">
+                        <div className="detail-item">
+                          <FaLanguage />
+                          <span>{video.language || "Unknown"}</span>
+                        </div>
+                        <div className="detail-item">
+                          <FaClosedCaptioning />
+                          <span>
+                            {video.subtitles ? "Subtitles Available" : "No Subtitles"}
+                          </span>
+                        </div>
+                        <div className="detail-item">
+                          <FaUser />
+                          <span>{video.uploader || "Unknown Uploader"}</span>
+                        </div>
+                      </div>
+
+                      <div className="action-buttons">
+                        <button
+                          className="action-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleFavorite(video.id);
+                          }}
+                          title={
+                            favorites.includes(video.id)
+                              ? "Remove from Favorites"
+                              : "Add to Favorites"
+                          }
+                        >
+                          {favorites.includes(video.id) ? <FaHeart /> : <FaRegHeart />}
+                        </button>
+                        <button
+                          className="action-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleWatchlist(video.id);
+                          }}
+                          title={
+                            watchlist.includes(video.id)
+                              ? "Remove from Watchlist"
+                              : "Add to Watchlist"
+                          }
+                        >
+                          <FaBookmark />
+                        </button>
+
+                        <div className="quality-selector">
+                          <button
+                            className="action-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowQuality(
+                                showQuality === video.id ? null : video.id
+                              );
+                            }}
+                            title="Download Options"
+                          >
+                            <FaDownloadIcon />
+                          </button>
+                          {showQuality === video.id && (
+                            <div className="quality-menu">
+                              {["4K", "1080p", "720p", "480p"].map((quality) => (
+                                <button
+                                  key={quality}
+                                  className="quality-option"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleQualitySelect(video.id, quality);
+                                  }}
+                                >
+                                  {quality}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="share-container">
+                          <button
+                            className="action-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowShare(showShare === video.id ? null : video.id);
+                            }}
+                            title="Share Video"
+                          >
+                            <FaShare />
+                          </button>
+                          {showShare === video.id && (
+                            <div className="share-menu">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleShare(video.id, "facebook");
+                                }}
+                              >
+                                <FaFacebook /> Share on Facebook
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleShare(video.id, "twitter");
+                                }}
+                              >
+                                <FaTwitter /> Share on Twitter
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleShare(video.id, "whatsapp");
+                                }}
+                              >
+                                <FaWhatsapp /> Share on WhatsApp
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleShare(video.id, "telegram");
+                                }}
+                              >
+                                <FaTelegram /> Share on Telegram
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="quick-actions-container">
+                          <button
+                            className="action-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowQuickActions(
+                                showQuickActions === video.id ? null : video.id
+                              );
+                            }}
+                            title="More Options"
+                          >
+                            <FaEllipsisH />
+                          </button>
+                          {showQuickActions === video.id && (
+                            <div className="quick-actions-menu">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setShowVideoInfo(video.id);
+                                }}
+                              >
+                                <FaInfoCircle /> Video Info
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setShowSuggestions(video.id);
+                                }}
+                              >
+                                <FaRandom /> Similar Videos
+                              </button>
+                              
+                              {/* Playlist Dropdown */}
+                              <div className="playlist-dropdown">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowPlaylistDropdown(
+                                      showPlaylistDropdown === video.id ? null : video.id
+                                    );
+                                  }}
+                                >
+                                  <FaList /> Add to Playlist
+                                </button>
+                                {showPlaylistDropdown === video.id && (
+                                  <div className="playlist-menu">
+                                    {(!playlists || playlists.length === 0) ? (
+                                      <div className="no-playlists">
+                                        <p>No playlists available</p>
+                                        <small>Create a playlist first</small>
+                                      </div>
+                                    ) : (
+                                      (Array.isArray(playlists) ? playlists : []).map(playlist => (
+                                        <button
+                                          key={playlist.id}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            onAddToPlaylist(video, playlist.id);
+                                            setShowPlaylistDropdown(null);
+                                          }}
+                                          className="playlist-option"
+                                        >
+                                          <FaList />
+                                          <span>{playlist.name}</span>
+                                          <small>({playlist.videos.length} videos)</small>
+                                        </button>
+                                      ))
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                              
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onReport(video.id);
+                                }}
+                              >
+                                <FaFlag /> Report
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {downloadProgress[video.id] > 0 && (
+                        <div className="download-progress">
+                          <div
+                            className="progress-bar"
+                            style={{ width: `${downloadProgress[video.id]}%` }}
+                          />
+                        </div>
+                      )}
+
+                      {showVideoInfo === video.id && (
+                        <div className="video-info-panel">
+                          <h4>Video Information</h4>
+                          <div className="info-grid">
+                            <div className="info-item">
+                              <FaCalendarAlt />
+                              <span>Upload Date: {formatDate(video.uploadDate)}</span>
+                            </div>
+                            <div className="info-item">
+                              <FaUser />
+                              <span>Uploader: {video.uploader || "Unknown"}</span>
+                            </div>
+                            <div className="info-item">
+                              <FaLanguage />
+                              <span>Language: {video.language || "Unknown"}</span>
+                            </div>
+                            <div className="info-item">
+                              <FaClosedCaptioning />
+                              <span>
+                                Subtitles:{" "}
+                                {video.subtitles ? "Available" : "Not Available"}
+                              </span>
+                            </div>
+                            <div className="info-item">
+                              <FaHistory />
+                              <span>
+                                Last Updated: {formatDate(video.lastUpdated)}
+                              </span>
+                            </div>
+                            <div className="info-item">
+                              <FaTag />
+                              <span>Tags: {video.tags?.join(", ") || "No tags"}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {showSuggestions === video.id && (
+                      <div className="video-suggestions">
+                        <div className="suggestions-header">
+                          <h4>Similar Videos</h4>
+                          <FaChevronRight />
+                        </div>
+                        <div className="suggestions-grid">
+                          {getSimilarVideos(video).map((video) => (
+                            <div
+                              key={video.id}
+                              className="suggestion-card"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onVideoSelect(video);
+                              }}
+                            >
+                              <img
+                                src={video.thumbnail}
+                                alt={video.title}
+                                className="suggestion-thumbnail"
+                              />
+                              <div className="suggestion-info">
+                                <div className="suggestion-title">{video.title}</div>
+                                <div className="suggestion-meta">
+                                  <FaClock /> {video.duration}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        }}
+      </List>
+    );
+  }
 
   return (
     <div className="search-results-container">
