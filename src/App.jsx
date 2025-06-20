@@ -719,7 +719,6 @@ export default function App() {
                 theme={theme}
                 toggleTheme={toggleTheme}
                 fetchRandomMovie={fetchRandomMovie}
-                t={t}
               />
               <main className="fade-slide">
                 <TrendingCarousel trending={trending} watchMovie={watchMovie} t={t} loading={loading} />
