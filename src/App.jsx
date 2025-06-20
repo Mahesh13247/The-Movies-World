@@ -11,6 +11,12 @@ import {
   FaTwitter,
   FaWhatsapp,
   FaCalendarAlt,
+  FaHome,
+  FaUserShield,
+  FaPalette,
+  FaMagic,
+  FaList,
+  FaLock,
 } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -24,6 +30,11 @@ import AdultSearchBar from "./components/AdultSearchBar";
 import ErrorBoundary from "./components/ErrorBoundary";
 import LogoAnimation from "./components/LogoAnimation";
 import PinLock from "./components/PinLock";
+import AppHeader from "./components/AppHeader";
+import TrendingCarousel from "./components/TrendingCarousel";
+import MoviesGrid from "./components/MoviesGrid";
+import MoviePlayerSection from "./components/MoviePlayerSection";
+import useLocalStorage from "./utils/useLocalStorage";
 
 // Loading component
 const LoadingSpinner = () => (
@@ -50,33 +61,21 @@ export default function App() {
   const [trending, setTrending] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [userRatings, setUserRatings] = useState(() =>
-    JSON.parse(localStorage.getItem("userRatings") || "{}")
-  );
-  const [reviews, setReviews] = useState(() =>
-    JSON.parse(localStorage.getItem("reviews") || "{}")
-  );
+  const [userRatings, setUserRatings] = useLocalStorage("userRatings", {});
+  const [reviews, setReviews] = useLocalStorage("reviews", {});
   const [reviewInput, setReviewInput] = useState("");
   const [reviewMovieId, setReviewMovieId] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
-  const [profile, setProfile] = useState(() =>
-    JSON.parse(
-      localStorage.getItem("profile") || '{"name":"Guest","avatar":""}'
-    )
-  );
+  const [profile, setProfile] = useLocalStorage("profile", { name: "Guest", avatar: "" });
   const [editProfile, setEditProfile] = useState(false);
   const [profileName, setProfileName] = useState(profile.name);
   const [showCalendar, setShowCalendar] = useState(false);
   const [upcoming, setUpcoming] = useState([]);
   const [activePage, setActivePage] = useState("home");
-  const [favorites, setFavorites] = useState(() =>
-    JSON.parse(localStorage.getItem("favorites") || "[]")
-  );
-  const [watchlist, setWatchlist] = useState(() =>
-    JSON.parse(localStorage.getItem("watchlist") || "[]")
-  );
+  const [favorites, setFavorites] = useLocalStorage("favorites", []);
+  const [watchlist, setWatchlist] = useLocalStorage("watchlist", []);
   const searchInputRef = useRef();
   const [showLogoAnimation, setShowLogoAnimation] = useState(true);
 
@@ -558,12 +557,23 @@ export default function App() {
     setShowLogoAnimation(false);
   };
 
+  const isInWatchlist = (movie) => watchlist.some((w) => w.id === movie.id);
+  const toggleWatchlist = (movie) => {
+    let updated;
+    if (isInWatchlist(movie)) {
+      updated = watchlist.filter((w) => w.id !== movie.id);
+    } else {
+      updated = [...watchlist, movie];
+    }
+    setWatchlist(updated);
+  };
+
   return (
     <ErrorBoundary>
       {showLogoAnimation ? (
         <LogoAnimation onAnimationComplete={handleLogoAnimationComplete} />
       ) : (
-        <div className="app">
+        <div className="app fade-slide">
           <ToastContainer
             position="top-right"
             autoClose={2000}
@@ -621,6 +631,51 @@ export default function App() {
               StudyMatrial
             </button>
           </nav>
+          {/* Mobile Bottom Nav */}
+          <nav className="mobile-bottom-nav">
+                      <button
+              className={activePage === "home" ? "active" : ""}
+              onClick={() => setActivePage("home")}
+              aria-label="Home"
+            >
+              <FaHome />
+                      </button>
+                      <button
+              className={activePage === "admin" ? "active" : ""}
+              onClick={() => setActivePage("admin")}
+              aria-label={t("admin_panel")}
+            >
+              <FaUserShield />
+                      </button>
+            <button
+              className={activePage === "theme" ? "active" : ""}
+              onClick={() => setActivePage("theme")}
+              aria-label={t("theme_customization")}
+            >
+              <FaPalette />
+                      </button>
+                      <button
+              className={activePage === "animatedbg" ? "active" : ""}
+              onClick={() => setActivePage("animatedbg")}
+              aria-label={t("animated_background")}
+            >
+              <FaMagic />
+                      </button>
+                      <button
+              className={activePage === "lists" ? "active" : ""}
+              onClick={() => setActivePage("lists")}
+              aria-label={t("movie_lists")}
+            >
+              <FaList />
+                      </button>
+                  <button
+              className={activePage === "adult" ? "active" : ""}
+              onClick={() => setActivePage("adult")}
+              aria-label="StudyMatrial"
+                  >
+              <FaLock />
+                  </button>
+          </nav>
           {activePage === "admin" && <AdminPanel />}
           {activePage === "theme" && <ThemeCustomizer />}
           {activePage === "animatedbg" && <AnimatedBackground />}
@@ -630,416 +685,73 @@ export default function App() {
               <div className="adult-section">
                 <AdultSearchBar />
                 <AdultSection BASE_URL={BASE_URL} API_KEY={API_KEY} t={t} />
-              </div>
+                </div>
             </PinLock>
           )}
           {activePage === "home" && (
             <>
-              <header className="custom-header">
-                <div className="header-bg-shape"></div>
-                <div className="header-content">
-                  <div className="header-row">
-                    <div className="logo-title">
-                      <span className="logo-icon">🌟</span>
-                      <h1 className="main-title">{t("title")}</h1>
-                    </div>
-                    <div className="author-badge">
-                      {profile.avatar ? (
-                        <img
-                          src={profile.avatar}
-                          alt="profile"
-                          className="main-profile-photo"
-                        />
-                      ) : (
-                        <span className="author-avatar">👨‍💻</span>
-                      )}
-                      <span className="author-name">K MAHESH KUMAR ACHARY</span>
-                      <button
-                        style={{ marginLeft: 8 }}
-                        onClick={() => setShowProfile((v) => !v)}
-                        title="Profile"
-                      >
-                        <FaUserCircle size={22} />
-                      </button>
-                      <button
-                        style={{ marginLeft: 4 }}
-                        onClick={() => setShowCalendar((v) => !v)}
-                        title="Upcoming Movies"
-                      >
-                        <FaCalendarAlt size={20} />
-                      </button>
-                      <select
-                        aria-label="Language selector"
-                        style={{ marginLeft: 8 }}
-                        value={i18n.language}
-                        onChange={(e) => {
-                          i18n.changeLanguage(e.target.value);
-                          localStorage.setItem("lang", e.target.value);
-                        }}
-                      >
-                        <option value="en">EN</option>
-                        <option value="hi">हिंदी</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="search-row" style={{ position: "relative" }}>
-                    <div className="search-container">
-                      <input
-                        ref={searchInputRef}
-                        type="text"
-                        value={searchInput}
-                        onChange={(e) => setSearchInput(e.target.value)}
-                        onKeyDown={handleKeyPress}
-                        placeholder={t("search_placeholder")}
-                        aria-label={t("search_placeholder")}
-                        onFocus={() =>
-                          setShowSuggestions(suggestions.length > 0)
-                        }
-                        onBlur={() =>
-                          setTimeout(() => setShowSuggestions(false), 200)
-                        }
-                      />
-                      <button onClick={searchMovie} aria-label={t("search")}>
-                        🥵 {t("search")}
-                      </button>
-                      <select
-                        value={selectedGenre}
-                        onChange={(e) => setSelectedGenre(e.target.value)}
-                        aria-label={t("all_genres")}
-                      >
-                        <option value="">{t("all_genres")}</option>
-                        {genres.map((g) => (
-                          <option key={g.id} value={g.id}>
-                            {g.name}
-                          </option>
-                        ))}
-                      </select>
-                      <button
-                        onClick={toggleTheme}
-                        className="theme-toggle"
-                        aria-label="Toggle theme"
-                      >
-                        {theme === "dark" ? "🌙 Dark" : "☀️ Light"}
-                      </button>
-                      <button
-                        onClick={fetchRandomMovie}
-                        className="theme-toggle"
-                        style={{ marginLeft: 8 }}
-                        aria-label={t("random_movie")}
-                      >
-                        🎲 {t("random_movie")}
-                      </button>
-                    </div>
-                    {showSuggestions && suggestions.length > 0 && (
-                      <div className="autocomplete-suggestions">
-                        {suggestions.map((s) => (
-                          <div
-                            key={s.id}
-                            className="autocomplete-suggestion"
-                            onMouseDown={() => {
-                              setSearchInput(s.title);
-                              setShowSuggestions(false);
-                              searchMovie();
-                            }}
-                          >
-                            {s.title}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </header>
-              {showProfile && (
-                <div className="profile-page">
-                  <div className="profile-avatar">
-                    {profile.avatar ? (
-                      <img
-                        src={profile.avatar}
-                        alt="avatar"
-                        style={{
-                          width: "80px",
-                          height: "80px",
-                          borderRadius: "50%",
-                          objectFit: "cover",
-                        }}
-                      />
-                    ) : (
-                      <FaUserCircle />
-                    )}
-                  </div>
-                  <div className="profile-info">
-                    <label>Name:</label>
-                    {editProfile ? (
-                      <input
-                        value={profileName}
-                        onChange={(e) => setProfileName(e.target.value)}
-                      />
-                    ) : (
-                      <span>{profile.name}</span>
-                    )}
-                  </div>
-                  {editProfile && (
-                    <div style={{ marginBottom: 12 }}>
-                      <label>Upload Avatar: </label>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleAvatarUpload}
-                        aria-label={t("Upload avatar")}
-                      />
-                    </div>
-                  )}
-                  <div className="profile-actions">
-                    {editProfile ? (
-                      <button onClick={handleProfileSave}>Save</button>
-                    ) : (
-                      <button onClick={() => setEditProfile(true)}>Edit</button>
-                    )}
-                    <button onClick={() => setShowProfile(false)}>Close</button>
-                  </div>
-                </div>
-              )}
-              {showCalendar && (
-                <div className="movie-calendar">
-                  <div className="calendar-header">🎬 Upcoming Movies</div>
-                  <ul className="calendar-list">
-                    {upcoming.length === 0 && <li>Loading...</li>}
-                    {upcoming.map((m) => (
-                      <li key={m.id}>
-                        <span className="calendar-movie-title">{m.title}</span>
-                        <span className="calendar-movie-date">
-                          {m.release_date}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                  <button
-                    style={{ marginTop: 10 }}
-                    onClick={() => setShowCalendar(false)}
-                  >
-                    Close
-                  </button>
-                </div>
-              )}
-              <main>
-                {/* Trending Carousel */}
-                <section className="carousel-section">
-                  <h2>{t("trending")}</h2>
-                  <div className="carousel">
-                    {trending.map((movie) => (
-                      <div
-                        key={movie.id}
-                        className="carousel-card"
-                        onClick={() =>
-                          watchMovie(movie.id, movie.title, movie.release_date)
-                        }
-                      >
-                        <img
-                          src={
-                            movie.poster_path
-                              ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
-                              : "https://via.placeholder.com/100x150?text=No+Image"
-                          }
-                          alt={movie.title}
-                        />
-                        <div className="carousel-title">{movie.title}</div>
-                        <div className="carousel-release-date">
-                          {movie.release_date}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-                <div className="movies-grid" aria-live="polite">
-                  {loading
-                    ? Array.from({ length: 8 }).map((_, i) => (
-                        <div
-                          key={i}
-                          className="movie-card skeleton"
-                          aria-busy="true"
-                        >
-                          <div className="skeleton-img" />
-                          <div className="skeleton-title" />
-                          <div className="skeleton-btn" />
-                        </div>
-                      ))
-                    : movies.map((movie) => (
-                        <div key={movie.id} className="movie-card">
-                          <img
-                            src={
-                              movie.poster_path
-                                ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-                                : "https://via.placeholder.com/200x300?text=No+Image"
-                            }
-                            alt={movie.title}
-                          />
-                          <h3>{movie.title}</h3>
-                          <div className="rating-stars">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <FaStar
-                                key={star}
-                                color={
-                                  userRatings[movie.id] >= star
-                                    ? "#fc0"
-                                    : "#ccc"
-                                }
-                                style={{ cursor: "pointer" }}
-                                onClick={() => rateMovie(movie.id, star)}
-                              />
-                            ))}
-                          </div>
-                          <button
-                            onClick={() => watchMovie(movie.id, movie.title)}
-                            aria-label={t("watch_now")}
-                          >
-                            {t("watch_now")}
-                          </button>
-                          <button
-                            className="heart-btn"
-                            onClick={() => toggleFavorite(movie)}
-                          >
-                            {isFavorite(movie) ? (
-                              <FaHeart color="red" />
-                            ) : (
-                              <FaRegHeart />
-                            )}
-                          </button>
-                          <div className="share-buttons">
-                            <button
-                              className="share-btn"
-                              title="Share on Facebook"
-                              onClick={() => handleShare("facebook")}
-                            >
-                              <FaFacebook />
-                            </button>
-                            <button
-                              className="share-btn"
-                              title="Share on Twitter"
-                              onClick={() => handleShare("twitter")}
-                            >
-                              <FaTwitter />
-                            </button>
-                            <button
-                              className="share-btn"
-                              title="Share on WhatsApp"
-                              onClick={() => handleShare("whatsapp")}
-                            >
-                              <FaWhatsapp />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                </div>
-                {(selectedMovie || lastWatched) && (
-                  <div className="player-container">
-                    <h2>
-                      Streaming:{" "}
-                      {selectedMovie?.movieTitle || lastWatched?.movieTitle}
-                    </h2>
-                    <iframe
-                      id="videoPlayer"
-                      src={streamingSources[0].url}
-                      width="800"
-                      height="450"
-                      allowFullScreen
-                      onError={() =>
-                        switchSource(
-                          selectedMovie?.movieID || lastWatched?.movieID
-                        )
-                      }
-                    ></iframe>
-                    {trailerUrl && (
-                      <div className="trailer-section">
-                        <h3>Trailer</h3>
-                        <iframe
-                          width="560"
-                          height="315"
-                          src={trailerUrl}
-                          title="YouTube trailer"
-                          frameBorder="0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        ></iframe>
-                      </div>
-                    )}
-                    {/* Reviews Section */}
-                    <div className="reviews-section">
-                      <h3>{t("reviews_comments")}</h3>
-                      <div className="reviews-list">
-                        {currentReviews.length === 0 && (
-                          <div className="no-reviews">{t("no_reviews")}</div>
-                        )}
-                        {currentReviews.map((r, i) => (
-                          <div key={i} className="review-item">
-                            <div className="review-text">{r.text}</div>
-                            <div className="review-date">{r.date}</div>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="review-form">
-                        <textarea
-                          value={
-                            reviewMovieId === currentMovieId ? reviewInput : ""
-                          }
-                          onChange={(e) => {
-                            setReviewInput(e.target.value);
-                            setReviewMovieId(currentMovieId);
-                          }}
-                          placeholder={t("write_review")}
-                          rows={2}
-                          aria-label={t("write_review")}
-                        />
-                        <button
-                          onClick={() => handleReviewSubmit(currentMovieId)}
-                          style={{ marginLeft: 8 }}
-                          aria-label={t("submit")}
-                        >
-                          {t("submit")}
-                        </button>
-                      </div>
-                    </div>
-                    <div className="alternative-links">
-                      <p>{t("alternative_sources")}</p>
-                      <a
-                        href={`https://prmovies.land/?s=${encodeURIComponent(
-                          selectedMovie?.movieTitle || lastWatched?.movieTitle
-                        )}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="alt-link"
-                      >
-                        PRMovies
-                      </a>
-                      <a
-                        href={`https://yomovies.horse/?s=${encodeURIComponent(
-                          selectedMovie?.movieTitle || lastWatched?.movieTitle
-                        )}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="alt-link"
-                      >
-                        YoMovies
-                      </a>
-                      <a
-                        href={streamingSources[1].url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="alt-link"
-                      >
-                        FlixHQ
-                      </a>
-                      <a
-                        href={streamingSources[2].url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="alt-link"
-                      >
-                        Mat6Tube
-                      </a>
-                    </div>
-                  </div>
-                )}
+              <AppHeader
+                profile={profile}
+                setProfile={setProfile}
+                editProfile={editProfile}
+                setEditProfile={setEditProfile}
+                profileName={profileName}
+                setProfileName={setProfileName}
+                showProfile={showProfile}
+                setShowProfile={setShowProfile}
+                showCalendar={showCalendar}
+                setShowCalendar={setShowCalendar}
+                upcoming={upcoming}
+                t={t}
+                i18n={i18n}
+                genres={genres}
+                selectedGenre={selectedGenre}
+                setSelectedGenre={setSelectedGenre}
+                searchInput={searchInput}
+                setSearchInput={setSearchInput}
+                searchInputRef={searchInputRef}
+                suggestions={suggestions}
+                setSuggestions={setSuggestions}
+                showSuggestions={showSuggestions}
+                setShowSuggestions={setShowSuggestions}
+                searchMovie={searchMovie}
+                handleKeyPress={handleKeyPress}
+                theme={theme}
+                toggleTheme={toggleTheme}
+                fetchRandomMovie={fetchRandomMovie}
+                t={t}
+              />
+              <main className="fade-slide">
+                <TrendingCarousel trending={trending} watchMovie={watchMovie} t={t} loading={loading} />
+                <MoviesGrid
+                  loading={loading}
+                  movies={movies}
+                  userRatings={userRatings}
+                  rateMovie={rateMovie}
+                  watchMovie={watchMovie}
+                  toggleFavorite={toggleFavorite}
+                  isFavorite={isFavorite}
+                  handleShare={handleShare}
+                  t={t}
+                  watchlist={watchlist}
+                  toggleWatchlist={toggleWatchlist}
+                  isInWatchlist={isInWatchlist}
+                />
+                <MoviePlayerSection
+                  selectedMovie={selectedMovie}
+                  lastWatched={lastWatched}
+                  streamingSources={streamingSources}
+                  switchSource={switchSource}
+                  trailerUrl={trailerUrl}
+                  t={t}
+                  currentMovieId={currentMovieId}
+                  currentReviews={currentReviews}
+                  reviewInput={reviewInput}
+                  setReviewInput={setReviewInput}
+                  reviewMovieId={reviewMovieId}
+                  setReviewMovieId={setReviewMovieId}
+                  handleReviewSubmit={handleReviewSubmit}
+                />
               </main>
               <div className="fottercontainer">
                 <footer className="footer">

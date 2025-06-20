@@ -695,4 +695,17 @@
 .modal-nav-btn:hover {
   background: #ff3333;
   color: #fff;
+}
+
+.search-input-container.focused .search-bar,
+.search-bar.focused {
+  box-shadow: 0 2px 16px 0 rgba(255,204,0,0.18), 0 0 0 2px #ffcc00;
+  border-radius: 16px;
+  border: 1.5px solid #ffcc00;
+  transition: box-shadow 0.22s, border 0.22s;
+}
+.search-input:focus {
+  outline: none;
+  border-color: #ffcc00;
+  box-shadow: 0 0 0 2px #ffcc0033;
 } 

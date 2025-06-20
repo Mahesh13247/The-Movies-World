@@ -16,6 +16,7 @@ const SearchInput = ({
   const [isListening, setIsListening] = useState(false);
   const [showClearButton, setShowClearButton] = useState(false);
   const [activeSuggestion, setActiveSuggestion] = useState(-1);
+  const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef(null);
   const recognitionRef = useRef(null);
 
@@ -107,15 +108,15 @@ const SearchInput = ({
   };
 
   return (
-    <div className="search-input-container">
-      <div className="search-bar">
+    <div className={`search-input-container${isFocused ? ' focused' : ''}`}>
+      <div className={`search-bar${isFocused ? ' focused' : ''}`}>
         <input
           ref={inputRef}
           type="text"
           value={searchQuery}
           onChange={onSearchChange}
-          onFocus={onFocus}
-          onBlur={onBlur}
+          onFocus={e => { setIsFocused(true); onFocus?.(e); }}
+          onBlur={e => { setIsFocused(false); onBlur?.(e); }}
           onKeyDown={handleInputKeyDown}
           placeholder={placeholder}
           className={`search-input ${loading ? 'loading' : ''} ${isListening ? 'listening' : ''}`}
