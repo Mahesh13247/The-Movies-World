@@ -365,7 +365,7 @@ body {
 }
 
 .filters-section {
-  display: flex;
+  display: none;
   gap: 12px;
   margin: 18px 0 24px 0;
   flex-wrap: wrap;
@@ -1346,7 +1346,7 @@ body {
 }
 
 .tabs {
-  display: flex;
+  display: none;
   gap: 10px;
   margin-bottom: 20px;
   justify-content: center;
@@ -2202,7 +2202,7 @@ body {
 
 .advanced-filters-toggle {
   width: 100%;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
