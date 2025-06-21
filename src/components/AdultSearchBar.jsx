@@ -759,10 +759,10 @@ const AdultSearchBar = () => {
   // Loading skeletons and empty states
   const renderSkeletons = () => (
     <div className="search-results">
-      {Array.from({ length: 20 }).map((_, i) => (
+      {Array.from({ length: 12 }).map((_, i) => (
         <div key={i} className="result-card skeleton">
-          <div className="result-thumbnail skeleton-img" />
-          <div className="result-info">
+          <div className="skeleton-preview" />
+          <div className="skeleton-info">
             <div className="skeleton-title" />
             <div className="skeleton-meta" />
           </div>
@@ -773,7 +773,8 @@ const AdultSearchBar = () => {
 
   const renderEmptyState = () => (
     <div className="no-results">
-      {t('no_results_found_try_different_search_or_adjust_filters')}
+      <h3>No Results Found</h3>
+      <p>Try adjusting your search or filters to find what you're looking for.</p>
     </div>
   );
 
@@ -1392,7 +1393,7 @@ const AdultSearchBar = () => {
         title: t('recent_searches'),
         items: recentSearches.map(term => ({
           text: term,
-          icon: '��',
+          icon: '',
           action: () => {
             setSearchQuery(term);
             debouncedSearch(term);
