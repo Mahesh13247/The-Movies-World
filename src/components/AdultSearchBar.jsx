@@ -1576,8 +1576,6 @@ const AdultSearchBar = () => {
       <div
         className="adult-search-container"
         ref={containerRef}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
       >
         <SearchInput
           searchQuery={searchQuery}
