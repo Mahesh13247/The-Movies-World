@@ -2176,3 +2176,13 @@ body[data-theme="light"] .movie-calendar {
   }
 }
 
+/* Remove blue tap/click highlight on mobile */
+html, body, button, a, input, textarea, select, [tabindex] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Only show outline on keyboard navigation, not mouse */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+

@@ -46,20 +46,9 @@ const AdultSearchBar = () => {
   const [activeSuggestion, setActiveSuggestion] = useState(-1);
   const [trendingResults, setTrendingResults] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState("");
-  const [playlists, setPlaylists] = useState(() => {
-    try {
-      const saved = localStorage.getItem("adultPlaylists");
-      if (!saved) return [];
-      
-      const parsed = JSON.parse(saved);
-      // Ensure it's an array
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (error) {
-      // Clear corrupted data
-      localStorage.removeItem("adultPlaylists");
-      return [];
-    }
-  });
+  const [playlists, setPlaylists] = useState(() =>
+    JSON.parse(localStorage.getItem("adultPlaylists") || "[]")
+  );
   const [currentPlaylist, setCurrentPlaylist] = useState(null);
   const [showPlaylistModal, setShowPlaylistModal] = useState(false);
   const [playlistName, setPlaylistName] = useState("");
@@ -68,9 +57,33 @@ const AdultSearchBar = () => {
   );
   const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [trendingSearches, setTrendingSearches] = useState([]);
-  const [searchStats, setSearchStats] = useState({ totalResults: 0, searchTime: 0 });
+  const [searchStats, setSearchStats] = useState({
+    totalResults: 0,
+    searchTime: 0
+  });
   const [newPlaylistName, setNewPlaylistName] = useState("");
-  const [renameModalState, setRenameModalState] = useState({ isOpen: false, playlistId: null, currentName: '' });
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [advancedSearch, setAdvancedSearch] = useState({
+    order: 'top-weekly',
+    duration: '',
+    quality: '',
+    dateRange: '',
+    language: '',
+    tags: [],
+    excludeTags: []
+  });
+  const [searchHistory, setSearchHistory] = useState(() =>
+    JSON.parse(localStorage.getItem("adultSearchHistory") || "[]")
+  );
+  const [searchCache, setSearchCache] = useState(new Map());
+  const [searchAnalytics, setSearchAnalytics] = useState({
+    totalSearches: 0,
+    averageResults: 0,
+    popularTerms: new Map()
+  });
+  const [showRenameModal, setShowRenameModal] = useState(false);
+  const [editingPlaylistId, setEditingPlaylistId] = useState(null);
+  const [editingPlaylistName, setEditingPlaylistName] = useState("");
 
   // Enhanced API endpoints and configuration
   const EPORNER_API_KEY = import.meta.env.VITE_EPORNER_API_KEY;
@@ -85,26 +98,6 @@ const AdultSearchBar = () => {
     lq: 1,
     format: 'json'
   };
-
-  // Search cache for better performance
-  const [searchCache, setSearchCache] = useState(new Map());
-  const [searchHistory, setSearchHistory] = useState([]);
-  const [searchAnalytics, setSearchAnalytics] = useState({
-    totalSearches: 0,
-    averageResults: 0,
-    popularTerms: new Map()
-  });
-
-  // Advanced search parameters
-  const [advancedSearch, setAdvancedSearch] = useState({
-    order: 'top-weekly',
-    duration: '',
-    quality: '',
-    dateRange: '',
-    language: '',
-    tags: [],
-    excludeTags: []
-  });
 
   const tabOrder = [
     "all",
@@ -655,8 +648,141 @@ const AdultSearchBar = () => {
     toast.info(t('filters_cleared'));
   };
 
-  // Advanced filters and sorting UI
+  // Advanced search filters component
+  const renderAdvancedFilters = () => {
+    console.log('Rendering advanced filters, showAdvancedFilters:', showAdvancedFilters);
+    return (
+      <div className="advanced-filters-section">
+        <button
+          className="advanced-filters-toggle"
+          onClick={() => {
+            console.log('Advanced filters toggle clicked');
+            setShowAdvancedFilters(!showAdvancedFilters);
+          }}
+          type="button"
+        >
+          <span>{t('advanced_filters') || 'Advanced Filters'}</span>
+          <span className={`toggle-icon ${showAdvancedFilters ? 'expanded' : ''}`}>▼</span>
+        </button>
+        
+        {showAdvancedFilters && (
+          <div className="advanced-filters-panel">
+            <div className="filter-group">
+              <label>{t('sort_order') || 'Sort Order'}:</label>
+              <select
+                value={advancedSearch.order}
+                onChange={(e) => {
+                  setAdvancedSearch(prev => ({ ...prev, order: e.target.value }));
+                  if (searchQuery.trim()) {
+                    debouncedSearch(searchQuery, { ...advancedSearch, order: e.target.value });
+                  }
+                }}
+              >
+                <option value="top-weekly">{t('top_weekly') || 'Top Weekly'}</option>
+                <option value="top-monthly">{t('top_monthly') || 'Top Monthly'}</option>
+                <option value="top-yearly">{t('top_yearly') || 'Top Yearly'}</option>
+                <option value="newest">{t('newest') || 'Newest'}</option>
+                <option value="rating">{t('highest_rated') || 'Highest Rated'}</option>
+                <option value="views">{t('most_viewed') || 'Most Viewed'}</option>
+              </select>
+            </div>
+            
+            <div className="filter-group">
+              <label>{t('duration') || 'Duration'}:</label>
+              <select
+                value={advancedSearch.duration}
+                onChange={(e) => {
+                  setAdvancedSearch(prev => ({ ...prev, duration: e.target.value }));
+                }}
+              >
+                <option value="">{t('any_duration') || 'Any Duration'}</option>
+                <option value="short">{t('short_lt_10_min') || 'Short (<10 min)'}</option>
+                <option value="medium">{t('medium_10_30_min') || 'Medium (10-30 min)'}</option>
+                <option value="long">{t('long_gt_30_min') || 'Long (>30 min)'}</option>
+              </select>
+            </div>
+            
+            <div className="filter-group">
+              <label>{t('quality') || 'Quality'}:</label>
+              <select
+                value={advancedSearch.quality}
+                onChange={(e) => {
+                  setAdvancedSearch(prev => ({ ...prev, quality: e.target.value }));
+                }}
+              >
+                <option value="">{t('any_quality') || 'Any Quality'}</option>
+                <option value="hd">{t('hd') || 'HD'}</option>
+                <option value="sd">{t('sd') || 'SD'}</option>
+                <option value="4k">{t('4k') || '4K'}</option>
+              </select>
+            </div>
+            
+            <div className="filter-group">
+              <label>{t('language') || 'Language'}:</label>
+              <select
+                value={advancedSearch.language}
+                onChange={(e) => {
+                  setAdvancedSearch(prev => ({ ...prev, language: e.target.value }));
+                }}
+              >
+                <option value="">{t('any_language') || 'Any Language'}</option>
+                <option value="en">{t('english') || 'English'}</option>
+                <option value="es">{t('spanish') || 'Spanish'}</option>
+                <option value="fr">{t('french') || 'French'}</option>
+                <option value="de">{t('german') || 'German'}</option>
+                <option value="it">{t('italian') || 'Italian'}</option>
+                <option value="pt">{t('portuguese') || 'Portuguese'}</option>
+                <option value="ru">{t('russian') || 'Russian'}</option>
+                <option value="ja">{t('japanese') || 'Japanese'}</option>
+                <option value="ko">{t('korean') || 'Korean'}</option>
+                <option value="zh">{t('chinese') || 'Chinese'}</option>
+              </select>
+            </div>
+            
+            <div className="filter-actions">
+              <button
+                className="apply-filters-btn"
+                onClick={() => {
+                  console.log('Apply filters clicked');
+                  if (searchQuery.trim()) {
+                    debouncedSearch(searchQuery, advancedSearch);
+                  }
+                }}
+                type="button"
+              >
+                {t('apply_filters') || 'Apply Filters'}
+              </button>
+              <button
+                className="clear-filters-btn"
+                onClick={() => {
+                  console.log('Clear filters clicked');
+                  setAdvancedSearch({
+                    order: 'top-weekly',
+                    duration: '',
+                    quality: '',
+                    dateRange: '',
+                    language: '',
+                    tags: [],
+                    excludeTags: []
+                  });
+                  if (searchQuery.trim()) {
+                    debouncedSearch(searchQuery, {});
+                  }
+                }}
+                type="button"
+              >
+                {t('clear_all') || 'Clear All'}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Regular filters section
   const renderFilters = () => {
+    console.log('Rendering filters, current filters:', filters, 'sortBy:', sortBy);
     const hasActiveFilters =
       filters.category ||
       filters.duration ||
@@ -670,6 +796,7 @@ const AdultSearchBar = () => {
           <select
             value={filters.category}
             onChange={(e) => {
+              console.log('Category filter changed:', e.target.value);
               setFilters((f) => ({ ...f, category: e.target.value }));
               toast.info(t('category_filter') + `: ${e.target.value || "All"}`);
             }}
@@ -684,6 +811,7 @@ const AdultSearchBar = () => {
           <select
             value={filters.duration}
             onChange={(e) => {
+              console.log('Duration filter changed:', e.target.value);
               setFilters((f) => ({ ...f, duration: e.target.value }));
               toast.info(t('duration_filter') + `: ${e.target.value || "All"}`);
             }}
@@ -698,6 +826,7 @@ const AdultSearchBar = () => {
           <select
             value={filters.quality}
             onChange={(e) => {
+              console.log('Quality filter changed:', e.target.value);
               setFilters((f) => ({ ...f, quality: e.target.value }));
               toast.info(t('quality_filter') + `: ${e.target.value || "All"}`);
             }}
@@ -711,6 +840,7 @@ const AdultSearchBar = () => {
           <select
             value={filters.rating}
             onChange={(e) => {
+              console.log('Rating filter changed:', e.target.value);
               setFilters((f) => ({ ...f, rating: e.target.value }));
               toast.info(t('rating_filter') + `: ${e.target.value || "All"}`);
             }}
@@ -725,6 +855,7 @@ const AdultSearchBar = () => {
           <select
             value={sortBy}
             onChange={(e) => {
+              console.log('Sort by changed:', e.target.value);
               setSortBy(e.target.value);
               toast.info(t('sorting_by') + `: ${e.target.value}`);
             }}
@@ -740,7 +871,10 @@ const AdultSearchBar = () => {
         {hasActiveFilters && (
           <button
             className="clear-filters"
-            onClick={clearFilters}
+            onClick={() => {
+              console.log('Clear filters clicked');
+              clearFilters();
+            }}
             aria-label={t('clear_all_filters')}
           >
             {t('clear_filters')}
@@ -1190,131 +1324,6 @@ const AdultSearchBar = () => {
     }
   }, [searchQuery, recentSearches]);
 
-  // Advanced search filters component
-  const renderAdvancedFilters = () => {
-    const [showAdvanced, setShowAdvanced] = useState(false);
-    
-    return (
-      <div className="advanced-filters-section">
-        <button
-          className="advanced-filters-toggle"
-          onClick={() => setShowAdvanced(!showAdvanced)}
-        >
-          <span>{t('advanced_filters')}</span>
-          <span className={`toggle-icon ${showAdvanced ? 'expanded' : ''}`}>▼</span>
-        </button>
-        
-        {showAdvanced && (
-          <div className="advanced-filters-panel">
-            <div className="filter-group">
-              <label>{t('sort_order')}:</label>
-              <select
-                value={advancedSearch.order}
-                onChange={(e) => {
-                  setAdvancedSearch(prev => ({ ...prev, order: e.target.value }));
-                  if (searchQuery.trim()) {
-                    debouncedSearch(searchQuery, { ...advancedSearch, order: e.target.value });
-                  }
-                }}
-              >
-                <option value="top-weekly">{t('top_weekly')}</option>
-                <option value="top-monthly">{t('top_monthly')}</option>
-                <option value="top-yearly">{t('top_yearly')}</option>
-                <option value="newest">{t('newest')}</option>
-                <option value="rating">{t('highest_rated')}</option>
-                <option value="views">{t('most_viewed')}</option>
-              </select>
-            </div>
-            
-            <div className="filter-group">
-              <label>{t('duration')}:</label>
-              <select
-                value={advancedSearch.duration}
-                onChange={(e) => {
-                  setAdvancedSearch(prev => ({ ...prev, duration: e.target.value }));
-                }}
-              >
-                <option value="">{t('any_duration')}</option>
-                <option value="short">{t('short_lt_10_min')}</option>
-                <option value="medium">{t('medium_10_30_min')}</option>
-                <option value="long">{t('long_gt_30_min')}</option>
-              </select>
-            </div>
-            
-            <div className="filter-group">
-              <label>{t('quality')}:</label>
-              <select
-                value={advancedSearch.quality}
-                onChange={(e) => {
-                  setAdvancedSearch(prev => ({ ...prev, quality: e.target.value }));
-                }}
-              >
-                <option value="">{t('any_quality')}</option>
-                <option value="hd">{t('hd')}</option>
-                <option value="sd">{t('sd')}</option>
-                <option value="4k">{t('4k')}</option>
-              </select>
-            </div>
-            
-            <div className="filter-group">
-              <label>{t('language')}:</label>
-              <select
-                value={advancedSearch.language}
-                onChange={(e) => {
-                  setAdvancedSearch(prev => ({ ...prev, language: e.target.value }));
-                }}
-              >
-                <option value="">{t('any_language')}</option>
-                <option value="en">{t('english')}</option>
-                <option value="es">{t('spanish')}</option>
-                <option value="fr">{t('french')}</option>
-                <option value="de">{t('german')}</option>
-                <option value="it">{t('italian')}</option>
-                <option value="pt">{t('portuguese')}</option>
-                <option value="ru">{t('russian')}</option>
-                <option value="ja">{t('japanese')}</option>
-                <option value="ko">{t('korean')}</option>
-                <option value="zh">{t('chinese')}</option>
-              </select>
-            </div>
-            
-            <div className="filter-actions">
-              <button
-                className="apply-filters-btn"
-                onClick={() => {
-                  if (searchQuery.trim()) {
-                    debouncedSearch(searchQuery, advancedSearch);
-                  }
-                }}
-              >
-                {t('apply_filters')}
-              </button>
-              <button
-                className="clear-filters-btn"
-                onClick={() => {
-                  setAdvancedSearch({
-                    order: 'top-weekly',
-                    duration: '',
-                    quality: '',
-                    dateRange: '',
-                    language: '',
-                    tags: [],
-                    excludeTags: []
-                  });
-                  if (searchQuery.trim()) {
-                    debouncedSearch(searchQuery, {});
-                  }
-                }}
-              >
-                {t('clear_all')}
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
-
   // Search analytics dashboard component
   const renderSearchAnalytics = () => {
     if (searchAnalytics.totalSearches === 0) return null;
@@ -1543,7 +1552,9 @@ const AdultSearchBar = () => {
   }, []);
 
   const handleRenamePlaylist = (playlistId, currentName) => {
-    setRenameModalState({ isOpen: true, playlistId, currentName });
+    setShowRenameModal(true);
+    setEditingPlaylistId(playlistId);
+    setEditingPlaylistName(currentName);
   };
 
   const renamePlaylist = (playlistId, newName) => {
@@ -1553,11 +1564,11 @@ const AdultSearchBar = () => {
     toast.success(t('playlist_renamed_successfully'));
   };
 
-  const handleConfirmRename = (newName) => {
-    if (renameModalState.playlistId) {
-      renamePlaylist(renameModalState.playlistId, newName);
+  const handleConfirmRename = () => {
+    if (editingPlaylistId) {
+      renamePlaylist(editingPlaylistId, editingPlaylistName);
     }
-    setRenameModalState({ isOpen: false, playlistId: null, currentName: '' });
+    setShowRenameModal(false);
   };
 
   return (
@@ -1616,40 +1627,64 @@ const AdultSearchBar = () => {
         {renderFilters()}
         <div className="tabs">
           <button
+            type="button"
             className={tab === "all" ? "active" : ""}
-            onClick={() => setTab("all")}
+            onClick={() => {
+              console.log('Tab clicked: all');
+              setTab("all");
+            }}
           >
-            {t('all')}
+            {t('all') || 'All'}
           </button>
           <button
+            type="button"
             className={tab === "favorites" ? "active" : ""}
-            onClick={() => setTab("favorites")}
+            onClick={() => {
+              console.log('Tab clicked: favorites');
+              setTab("favorites");
+            }}
           >
-            {t('favorites')}
+            {t('favorites') || 'Favorites'}
           </button>
           <button
+            type="button"
             className={tab === "watchlist" ? "active" : ""}
-            onClick={() => setTab("watchlist")}
+            onClick={() => {
+              console.log('Tab clicked: watchlist');
+              setTab("watchlist");
+            }}
           >
-            {t('watchlist')}
+            {t('watchlist') || 'Watchlist'}
           </button>
           <button
+            type="button"
             className={tab === "history" ? "active" : ""}
-            onClick={() => setTab("history")}
+            onClick={() => {
+              console.log('Tab clicked: history');
+              setTab("history");
+            }}
           >
-            {t('recently_watched')}
+            {t('recently_watched') || 'Recently Watched'}
           </button>
           <button
+            type="button"
             className={tab === "playlists" ? "active" : ""}
-            onClick={() => setTab("playlists")}
+            onClick={() => {
+              console.log('Tab clicked: playlists');
+              setTab("playlists");
+            }}
           >
-            {t('playlists')}
+            {t('playlists') || 'Playlists'}
           </button>
           <button
+            type="button"
             className={tab === "downloads" ? "active" : ""}
-            onClick={() => setTab("downloads")}
+            onClick={() => {
+              console.log('Tab clicked: downloads');
+              setTab("downloads");
+            }}
           >
-            {t('download_queue')}
+            {t('download_queue') || 'Download Queue'}
           </button>
         </div>
         {tab === "all" && allCategories.length > 1 && (
@@ -1660,6 +1695,7 @@ const AdultSearchBar = () => {
             </div>
             <div className="category-buttons">
             <button
+                type="button"
                 className={`category-btn ${!categoryFilter ? "active" : ""}`}
               onClick={() => setCategoryFilter("")}
                 title={t('show_all_categories')}
@@ -1670,6 +1706,7 @@ const AdultSearchBar = () => {
             {allCategories.map((cat) => (
               <button
                 key={cat}
+                type="button"
                 className={`category-btn ${categoryFilter === cat ? "active" : ""}`}
                 onClick={() => setCategoryFilter(cat)}
                 title={t('filter_by') + `: ${cat}`}
@@ -1706,6 +1743,7 @@ const AdultSearchBar = () => {
               <div className="category-filter-info">
                 <span>{t('filtering_by')} <strong>{categoryFilter}</strong></span>
                 <button
+                  type="button"
                   className="clear-category-btn"
                   onClick={() => setCategoryFilter("")}
                   title={t('clear_category_filter')}
@@ -1832,11 +1870,7 @@ const AdultSearchBar = () => {
                       🗑️
                     </button>
                     <button
-                      onClick={() => {
-                        const newName = prompt("Rename playlist:", name);
-                        if (newName && newName !== name)
-                          handleRenamePlaylist(name, newName);
-                      }}
+                      onClick={() => handleRenamePlaylist(name, name)}
                       aria-label={t('rename_playlist')}
                     >
                       ✏️
@@ -1893,6 +1927,8 @@ const AdultSearchBar = () => {
             onNext={handleNextVideo}
             showPrev={currentIdx > 0}
             showNext={currentIdx < currentList.length - 1}
+            allVideos={searchResults}
+            onVideoSelect={handleVideoSelect}
           />
         )}
         {isFetchingMore && (
@@ -1905,10 +1941,10 @@ const AdultSearchBar = () => {
         {renderPlaylistManager()}
         {renderPlaylistModal()}
         <RenamePlaylistModal
-          isOpen={renameModalState.isOpen}
-          onClose={() => setRenameModalState({ isOpen: false, playlistId: null, currentName: '' })}
+          isOpen={showRenameModal}
+          onClose={() => setShowRenameModal(false)}
           onRename={handleConfirmRename}
-          currentName={renameModalState.currentName}
+          currentName={editingPlaylistName}
         />
       </div>
     </PinLock>
