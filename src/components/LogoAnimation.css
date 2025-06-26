@@ -57,13 +57,13 @@
   position: relative;
   background: linear-gradient(
     45deg,
-    #66ff00,
-    #66ff00,
-    #66ff00,
-    #66ff00,
-    #66ff00,
-    #66ff00,
-    #66ff00
+    #e60000,
+    #e60000,
+    #e60000,
+    #e60000,
+    #e60000,
+    #e60000,
+    #e60000
   );
   background-size: 200% 200%;
   -webkit-background-clip: text;
@@ -146,13 +146,13 @@
   position: relative;
   background: linear-gradient(
     45deg,
-    #fffb00,
-    #fffb00,
-    #fffb00,
-    #fffb00,
-    #fffb00,
-    #fffb00,
-    #fffb00
+    #fee715,
+    #fee715,
+    #fee715,
+    #fee715,
+    #fee715,
+    #fee715,
+    #fee715
   );
   background-size: 200% 200%;
   -webkit-background-clip: text;
