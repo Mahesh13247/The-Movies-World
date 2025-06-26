@@ -52,6 +52,8 @@ const EXTERNAL_SOURCES = [
     category: 'anime',
     name: 'Anime & Cartoons',
     links: [
+       "https://hentaigasm.tv",
+      "https://hentaigasm.com",
       "https://animeflix.ltd",
       "https://animehub.ac/animehub.to",
       "https://hanimehub.site",
