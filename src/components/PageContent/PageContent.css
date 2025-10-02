@@ -1,0 +1,19 @@
+/* Page Content Styles */
+.page-content {
+  min-height: 100vh;
+  padding: 20px;
+  background: var(--background-color, #121212);
+  color: var(--text-color, #ffffff);
+}
+
+.page-content-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .page-content {
+    padding: 10px;
+  }
+}

@@ -1,0 +1,38 @@
+/* Movie Player Section Styles */
+.movie-player-section {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.movie-player-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.movie-player-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 12px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .movie-player-section {
+    padding: 10px;
+  }
+  
+  .movie-player-container {
+    border-radius: 8px;
+  }
+  
+  .movie-player-iframe {
+    border-radius: 8px;
+  }
+}

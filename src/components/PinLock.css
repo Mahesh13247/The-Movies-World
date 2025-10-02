@@ -1,0 +1,1154 @@
+* {
+  scroll-behavior: smooth;
+}
+/* Modern PinLock Component Styles - Enhanced Design */
+.pin-lock-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 30px;
+  background: linear-gradient(
+    135deg,
+    rgba(20, 20, 35, 0.95) 0%,
+    rgba(40, 40, 60, 0.92) 25%,
+    rgba(60, 60, 80, 0.9) 50%,
+    rgba(40, 40, 60, 0.92) 75%,
+    rgba(20, 20, 35, 0.95) 100%
+  );
+  border-radius: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(25px);
+  margin: 15px;
+  position: relative;
+  overflow: hidden;
+}
+
+.pin-lock-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+      circle at 20% 20%,
+      rgba(255, 51, 51, 0.15) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 80%,
+      rgba(74, 144, 226, 0.1) 0%,
+      transparent 50%
+    );
+  pointer-events: none;
+  animation: backgroundShift 8s ease-in-out infinite;
+}
+
+@keyframes backgroundShift {
+  0%,
+  100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.pin-lock-container h2 {
+  color: #ff3333;
+  font-size: clamp(2rem, 5vw, 3rem);
+  margin-bottom: 35px;
+  text-align: center;
+  text-shadow: 0 2px 10px rgba(255, 51, 51, 0.4),
+    0 0 20px rgba(255, 51, 51, 0.2);
+  font-weight: 800;
+  letter-spacing: 2px;
+  position: relative;
+  z-index: 1;
+  animation: titleGlow 3s ease-in-out infinite;
+}
+
+@keyframes titleGlow {
+  0%,
+  100% {
+    text-shadow: 0 2px 10px rgba(255, 51, 51, 0.4),
+      0 0 20px rgba(255, 51, 51, 0.2);
+  }
+  50% {
+    text-shadow: 0 2px 15px rgba(255, 51, 51, 0.6),
+      0 0 30px rgba(255, 51, 51, 0.4);
+  }
+}
+
+/* Enhanced Role Display */
+.role-display {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 35px;
+  padding: 20px 30px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  flex-wrap: wrap;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.password-toggle {
+  margin-left: 105%;
+  transform: translate(-40%, -180%);
+   /* transform: translate(-30%, -270%); */
+  background: none;
+  border: none;
+  color: #ff3333;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.role-display::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  border-radius: 20px;
+  pointer-events: none;
+}
+
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 22px;
+  border-radius: 30px;
+  font-weight: 700;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.role-badge::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.6s;
+}
+
+.role-badge:hover::before {
+  left: 100%;
+}
+
+.role-badge.admin {
+  background: linear-gradient(135deg, #ff3333 0%, #ff6666 50%, #ff3333 100%);
+  color: white;
+  box-shadow: 0 6px 20px rgba(255, 51, 51, 0.5),
+    0 0 0 1px rgba(255, 51, 51, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.role-badge.admin:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 12px 30px rgba(255, 51, 51, 0.6),
+    0 0 0 1px rgba(255, 51, 51, 0.4);
+}
+
+.role-badge.user {
+  background: linear-gradient(135deg, #4a90e2 0%, #7bb3f0 50%, #4a90e2 100%);
+  color: white;
+  box-shadow: 0 6px 20px rgba(74, 144, 226, 0.5),
+    0 0 0 1px rgba(74, 144, 226, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.role-badge.user:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 12px 30px rgba(74, 144, 226, 0.6),
+    0 0 0 1px rgba(74, 144, 226, 0.4);
+}
+
+.role-switch-btn {
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 15px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(15px);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.role-switch-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.05)
+  );
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.role-switch-btn:hover::before {
+  opacity: 1;
+}
+
+.role-switch-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.4);
+}
+
+/* Enhanced Admin Switch Modal */
+.admin-switch-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(15px);
+  padding: 20px;
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(15px);
+  }
+}
+
+.admin-switch-content {
+  background: linear-gradient(
+    135deg,
+    rgba(30, 30, 45, 0.98) 0%,
+    rgba(50, 50, 70, 0.95) 100%
+  );
+  border-radius: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 40px;
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(25px);
+  position: relative;
+  overflow: hidden;
+  animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.admin-switch-content::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+      circle at 30% 30%,
+      rgba(255, 51, 51, 0.15) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at 70% 70%,
+      rgba(74, 144, 226, 0.1) 0%,
+      transparent 60%
+    );
+  pointer-events: none;
+}
+
+.admin-switch-content h3 {
+  color: #ff3333;
+  margin-bottom: 25px;
+  font-size: clamp(1.8rem, 4vw, 2.2rem);
+  font-weight: 800;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 2px 10px rgba(255, 51, 51, 0.3);
+}
+
+.admin-switch-content p {
+  color: #fff;
+  margin-bottom: 30px;
+  opacity: 0.95;
+  font-size: 17px;
+  line-height: 1.6;
+  position: relative;
+  z-index: 1;
+}
+
+.admin-switch-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 30px;
+  flex-wrap: wrap;
+}
+
+/* Enhanced No PIN Set Message */
+.no-pin-set {
+  text-align: center;
+  padding: 40px;
+  background: rgba(255, 51, 51, 0.1);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 51, 51, 0.25);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 10px 40px rgba(255, 51, 51, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.no-pin-set::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 51, 51, 0.1) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.no-pin-set p {
+  color: #fff;
+  margin: 12px 0;
+  opacity: 0.95;
+  font-size: 17px;
+  line-height: 1.6;
+  position: relative;
+  z-index: 1;
+}
+
+/* Enhanced Pin Input Container */
+.pin-input-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 25px;
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Enhanced Pin Input */
+.pin-input {
+  width: 100%;
+  padding: 18px 25px;
+  font-size: clamp(1.2rem, 3vw, 1.4rem);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  text-align: center;
+  letter-spacing: 8px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  font-family: "Courier New", monospace;
+  font-weight: 700;
+  position: relative;
+  overflow: hidden;
+}
+
+.pin-input::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  border-radius: 20px;
+  pointer-events: none;
+}
+
+.pin-input:focus {
+  outline: none;
+  border-color: #ff3333;
+  box-shadow: 0 0 0 5px rgba(255, 51, 51, 0.2),
+    0 12px 35px rgba(255, 51, 51, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-3px) scale(1.02);
+}
+
+.pin-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 3px;
+  font-weight: 500;
+}
+
+/* Enhanced Button Groups */
+.pin-buttons,
+.reset-confirmation-buttons {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Enhanced Pin Buttons */
+.pin-button {
+  padding: 16px 32px;
+  border: none;
+  border-radius: 18px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  min-width: 150px;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(15px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.pin-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.6s;
+}
+
+.pin-button:hover::before {
+  left: 100%;
+}
+
+.pin-button.unlock {
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 50%, #4caf50 100%);
+  color: white;
+  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.5),
+    0 0 0 1px rgba(76, 175, 80, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.pin-button.unlock:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 15px 35px rgba(76, 175, 80, 0.6),
+    0 0 0 1px rgba(76, 175, 80, 0.4);
+}
+
+.pin-button.set {
+  background: linear-gradient(135deg, #2196f3 0%, #42a5f5 50%, #2196f3 100%);
+  color: white;
+  box-shadow: 0 8px 25px rgba(33, 150, 243, 0.5),
+    0 0 0 1px rgba(33, 150, 243, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.pin-button.set:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 15px 35px rgba(33, 150, 243, 0.6),
+    0 0 0 1px rgba(33, 150, 243, 0.4);
+}
+
+.pin-button.reset {
+  background: linear-gradient(135deg, #ff9800 0%, #ffb74d 50%, #ff9800 100%);
+  color: white;
+  box-shadow: 0 8px 25px rgba(255, 152, 0, 0.5),
+    0 0 0 1px rgba(255, 152, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.pin-button.reset:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 15px 35px rgba(255, 152, 0, 0.6),
+    0 0 0 1px rgba(255, 152, 0, 0.4);
+}
+
+.pin-button.confirm {
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 50%, #4caf50 100%);
+  color: white;
+  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.5),
+    0 0 0 1px rgba(76, 175, 80, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.pin-button.confirm:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 15px 35px rgba(76, 175, 80, 0.6),
+    0 0 0 1px rgba(76, 175, 80, 0.4);
+}
+
+.pin-button.cancel {
+  background: linear-gradient(135deg, #f44336 0%, #ef5350 50%, #f44336 100%);
+  color: white;
+  box-shadow: 0 8px 25px rgba(244, 67, 54, 0.5),
+    0 0 0 1px rgba(244, 67, 54, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.pin-button.cancel:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 15px 35px rgba(244, 67, 54, 0.6),
+    0 0 0 1px rgba(244, 67, 54, 0.4);
+}
+
+/* Protected Content Styles */
+.protected-content {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Enhanced Lock Control */
+.lock-control {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  background: rgba(30, 30, 40, 0.92);
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  min-width: 0;
+  max-width: 220px;
+}
+
+.role-info {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Enhanced Auto-lock Countdown */
+.auto-lock-countdown {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  padding: 6px 0 2px 0;
+  background: none;
+  border-radius: 8px;
+  border: none;
+  box-shadow: none;
+  min-width: 0;
+  width: auto;
+  text-align: right;
+}
+
+.countdown-label {
+  color: #bbb;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.countdown-timer {
+  color: #4caf50;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: "Courier New", monospace;
+  letter-spacing: 2px;
+  text-shadow: 0 0 6px rgba(76, 175, 80, 0.3);
+  transition: color 0.3s;
+}
+
+.countdown-timer.warning {
+  color: #ff9800;
+  text-shadow: 0 0 10px rgba(255, 152, 0, 0.4);
+}
+
+/* Enhanced Auto-lock Warning */
+.auto-lock-warning {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2000;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 152, 0, 0.95) 0%,
+    rgba(255, 183, 77, 0.98) 100%
+  );
+  border-radius: 25px;
+  border: 2px solid #ff9800;
+  padding: 30px;
+  box-shadow: 0 25px 50px rgba(255, 152, 0, 0.5),
+    0 0 0 1px rgba(255, 152, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(25px);
+  animation: warningSlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  max-width: 95vw;
+  width: 500px;
+}
+
+@keyframes warningSlideIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.warning-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  color: #fff;
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.warning-icon {
+  font-size: 32px;
+  animation: warningBounce 1.5s infinite;
+  flex-shrink: 0;
+}
+
+@keyframes warningBounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+.warning-text {
+  font-size: 17px;
+  font-weight: 700;
+  flex: 1;
+  min-width: 220px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.warning-dismiss {
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 15px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  backdrop-filter: blur(15px);
+  flex-shrink: 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.warning-dismiss:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Enhanced Lock Button */
+.lock-button {
+  padding: 6px 14px;
+  background: linear-gradient(135deg, #ff3333 0%, #ff6666 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(255, 51, 51, 0.15);
+  margin-top: 2px;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+.lock-button:hover {
+  background: linear-gradient(135deg, #ff6666 0%, #ff3333 100%);
+  box-shadow: 0 4px 16px rgba(255, 51, 51, 0.22);
+}
+
+/* Keyboard hints */
+.keyboard-hints {
+  margin-top: 20px;
+  padding: 15px 25px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 1;
+}
+
+.keyboard-hints p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  text-align: center;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .pin-lock-container {
+    min-height: 100vh;
+    padding: 20px;
+    margin: 10px;
+    border-radius: 20px;
+  }
+
+  .pin-lock-container h2 {
+    font-size: clamp(1.8rem, 6vw, 2.5rem);
+    margin-bottom: 30px;
+  }
+
+  .role-display {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px 25px;
+    margin-bottom: 30px;
+  }
+
+  .role-badge {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+
+  .role-switch-btn {
+    padding: 8px 18px;
+    font-size: 13px;
+  }
+
+  .pin-input {
+    padding: 16px 22px;
+    font-size: clamp(1.1rem, 4.5vw, 1.3rem);
+    letter-spacing: 6px;
+  }
+
+  .pin-buttons,
+  .reset-confirmation-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .pin-button {
+    padding: 14px 28px;
+    font-size: 15px;
+    min-width: 100%;
+    width: 100%;
+  }
+
+  .admin-switch-content {
+    padding: 30px 25px;
+    margin: 15px;
+    border-radius: 20px;
+  }
+
+  .admin-switch-content h3 {
+    font-size: clamp(1.6rem, 5vw, 2rem);
+  }
+
+  .admin-switch-buttons {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .lock-control {
+    position: static;
+    margin: 10px auto 0 auto;
+    align-items: center;
+    width: 100%;
+    max-width: 40vw;
+    border-radius: 20px;
+    padding: 10px 8px 8px 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    min-width: unset;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .auto-lock-countdown {
+    width: 100%;
+    align-items: center;
+    text-align: center;
+    padding: 4px 0 0 0;
+  }
+
+  .auto-lock-warning {
+    width: 95vw;
+    max-width: 450px;
+    padding: 25px;
+    border-radius: 20px;
+  }
+
+  .warning-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 18px;
+  }
+
+  .warning-text {
+    font-size: 16px;
+    min-width: auto;
+  }
+
+  .warning-dismiss {
+    width: 100%;
+    padding: 14px 24px;
+  }
+
+  .protected-content .lock-control {
+    display: block;
+  }
+  .protected-content .lock-control ~ .lock-control {
+    display: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .pin-lock-container {
+    padding: 15px;
+    margin: 5px;
+  }
+
+  .pin-lock-container h2 {
+    font-size: 1.6rem;
+    margin-bottom: 25px;
+  }
+  .password-toggle {
+    margin-left: 105%;
+    transform: translate(-40%, -180%);
+    /* transform: translate(-30%, -270%); */
+    background: none;
+    border: none;
+    color: #ff3333;
+    cursor: pointer;
+    font-size: 20px;
+  }
+
+  .role-display {
+    padding: 12px 20px;
+    margin-bottom: 25px;
+  }
+
+  .pin-input-container {
+    gap: 20px;
+  }
+
+  .pin-input {
+    padding: 14px 20px;
+    font-size: 1.2rem;
+    letter-spacing: 5px;
+  }
+
+  .pin-button {
+    padding: 12px 24px;
+    font-size: 14px;
+  }
+
+  .admin-switch-content {
+    padding: 25px 20px;
+  }
+
+  .admin-switch-content h3 {
+    font-size: 1.4rem;
+  }
+
+  .auto-lock-warning {
+    padding: 20px;
+  }
+
+  .warning-content {
+    gap: 15px;
+  }
+
+  .warning-text {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 600px) {
+  .pin-lock-container {
+    padding: 8vw 2vw;
+    min-height: 100vh;
+    border-radius: 0;
+    margin: 0;
+  }
+  .pin-lock-container h2 {
+    font-size: 1.2rem;
+    margin-bottom: 18px;
+  }
+  .role-display {
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 5vw;
+    margin-bottom: 18px;
+    border-radius: 12px;
+  }
+  .pin-input-container {
+    gap: 12px;
+    max-width: 98vw;
+  }
+  .pin-input {
+    padding: 12px 10px;
+    font-size: 1.1rem;
+    border-radius: 12px;
+    letter-spacing: 3px;
+  }
+  .pin-button {
+    padding: 10px 0;
+    font-size: 1rem;
+    min-width: 90vw;
+    border-radius: 12px;
+  }
+  .admin-switch-content {
+    padding: 18px 2vw;
+    border-radius: 12px;
+    max-width: 98vw;
+  }
+  .auto-lock-warning {
+    width: 98vw;
+    max-width: 98vw;
+    padding: 10px 2vw;
+    border-radius: 12px;
+  }
+  .lock-control {
+    position: static;
+    width: 100%;
+    max-width: 50vw;
+    border-radius: 20px;
+    padding: 12px 2vw 10px 2vw;
+    align-items: stretch;
+    gap: 12px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  }
+  .auto-lock-countdown {
+    min-width: unset;
+    width: 100%;
+    align-items: center;
+    text-align: center;
+    border-radius: 10px;
+    padding: 8px 0;
+  }
+  .keyboard-hints {
+    padding: 8px 2vw;
+    border-radius: 10px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 400px) {
+  .pin-lock-container {
+    padding: 2vw 1vw;
+  }
+  .pin-input {
+    font-size: 1rem;
+    padding: 8px 4px;
+  }
+  .pin-button {
+    font-size: 0.95rem;
+    padding: 8px 0;
+  }
+}
+
+/* Smoother transitions for all interactive elements */
+.pin-button,
+.role-switch-btn,
+.lock-button,
+.warning-dismiss,
+.tab-button,
+.admin-button {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.pin-input,
+.form-input {
+  transition: border-color 0.25s, box-shadow 0.35s, background 0.25s;
+}
+
+/* Touch highlight for buttons */
+.pin-button:active,
+.role-switch-btn:active,
+.lock-button:active,
+.warning-dismiss:active {
+  filter: brightness(0.95) saturate(1.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+/* High DPI Displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .pin-input,
+  .pin-button,
+  .role-switch-btn {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .pin-lock-container {
+    background: linear-gradient(
+      135deg,
+      rgba(15, 15, 25, 0.95) 0%,
+      rgba(30, 30, 45, 0.92) 25%,
+      rgba(45, 45, 60, 0.9) 50%,
+      rgba(30, 30, 45, 0.92) 75%,
+      rgba(15, 15, 25, 0.95) 100%
+    );
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .pin-button::before,
+  .role-badge::before,
+  .role-switch-btn::before,
+  .lock-button::before {
+    display: none;
+  }
+
+  .pin-button:hover,
+  .role-switch-btn:hover,
+  .lock-button:hover {
+    transform: none;
+  }
+
+  .countdown-timer.warning {
+    animation: none;
+  }
+
+  .warning-icon {
+    animation: none;
+  }
+
+  .auto-lock-warning {
+    animation: none;
+  }
+
+  .admin-switch-modal {
+    animation: none;
+  }
+
+  .admin-switch-content {
+    animation: none;
+  }
+
+  .pin-lock-container h2 {
+    animation: none;
+  }
+}
+
+/* Focus styles for accessibility */
+.pin-input:focus,
+.pin-button:focus,
+.role-switch-btn:focus,
+.warning-dismiss:focus,
+.lock-button:focus {
+  outline: 3px solid #ff3333;
+  outline-offset: 3px;
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .pin-button,
+  .role-switch-btn,
+  .warning-dismiss,
+  .lock-button {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  .pin-input {
+    min-height: 48px;
+  }
+}
+
+/* Touch device optimizations for .lock-control buttons */
+@media (hover: none) and (pointer: coarse) {
+  .lock-control button,
+  .lock-control .lock-button {
+    min-height: 48px;
+    min-width: 48px;
+    font-size: 1.1em;
+    padding: 12px 0;
+  }
+  .lock-control {
+    gap: 14px;
+  }
+}

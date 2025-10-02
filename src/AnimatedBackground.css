@@ -1,0 +1,48 @@
+body.animated-bg {
+  background: linear-gradient(
+    270deg,
+    #ffcc00,
+    #ff6666,
+    #22223b,
+    #00c3ff,
+    #ffcc00
+  );
+  background-size: 1200% 1200%;
+  animation: animatedGradient 18s ease infinite;
+}
+
+@keyframes animatedGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animated-bg-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background-color: transparent;
+  border-radius: 18px;
+  width: 100%;
+  height: 90vh;
+  border: dashed 2px #ff0000;
+}
+
+.animated-bg-panel h2 {
+  font-size: 16px;
+  color: #ffffff;
+  background-color: #ff0000;
+  border: 2px solid #91ff00;
+  border-radius: 6px;
+  padding: 3px;
+  margin-bottom: 10px;
+  transition: background-color 0.3s ease;
+}

@@ -1,0 +1,773 @@
+/* Netflix-Style Logo Animation */
+* {
+  scroll-behavior: smooth;
+}
+
+/* Main Container */
+.netflix-logo-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  overflow: hidden;
+  font-family: 'Bebas Neue', 'Arial Black', sans-serif;
+}
+
+/* Background Elements */
+.netflix-background {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at center, #1a0000 0%, #000000 70%);
+}
+
+.netflix-gradient-overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, 
+    rgba(229, 9, 20, 0.1) 0%, 
+    transparent 30%, 
+    transparent 70%, 
+    rgba(229, 9, 20, 0.1) 100%);
+  animation: netflix-gradient-shift 8s ease-in-out infinite;
+}
+
+/* Particles */
+.netflix-particles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.netflix-particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #e50914;
+  border-radius: 50%;
+  opacity: 0;
+  animation: netflix-particle-float 6s infinite ease-in-out;
+}
+
+.particle-1 { left: 10%; top: 20%; animation-delay: 0s; }
+.particle-2 { left: 20%; top: 80%; animation-delay: 0.5s; }
+.particle-3 { left: 80%; top: 30%; animation-delay: 1s; }
+.particle-4 { left: 70%; top: 70%; animation-delay: 1.5s; }
+.particle-5 { left: 30%; top: 10%; animation-delay: 2s; }
+.particle-6 { left: 90%; top: 60%; animation-delay: 2.5s; }
+.particle-7 { left: 15%; top: 50%; animation-delay: 3s; }
+.particle-8 { left: 60%; top: 90%; animation-delay: 3.5s; }
+.particle-9 { left: 40%; top: 40%; animation-delay: 4s; }
+.particle-10 { left: 85%; top: 15%; animation-delay: 4.5s; }
+.particle-11 { left: 25%; top: 75%; animation-delay: 5s; }
+.particle-12 { left: 75%; top: 45%; animation-delay: 5.5s; }
+
+/* Logo Wrapper */
+.netflix-logo-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  z-index: 10;
+}
+
+/* Main Logo */
+.netflix-logo-main {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.netflix-logo-text {
+  font-size: clamp(2.5rem, 7vw, 10rem);
+  font-weight: 900;
+  color: #e50914;
+  text-transform: uppercase;
+  letter-spacing: clamp(1px, 1.2vw, 16px);
+  text-shadow: 
+    0 0 10px rgba(229, 9, 20, 0.8),
+    0 0 20px rgba(229, 9, 20, 0.6),
+    0 0 30px rgba(229, 9, 20, 0.4),
+    0 0 40px rgba(229, 9, 20, 0.2);
+  position: relative;
+  z-index: 2;
+  line-height: 1;
+  text-align: center;
+  word-spacing: clamp(1px, 0.8vw, 8px);
+  font-family: 'Bebas Neue', 'Impact', 'Arial Black', sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  filter: none;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* Individual Letter Animations */
+.netflix-logo-text span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(60px) rotateX(45deg) scale(0.9);
+  animation: netflix-letter-reveal-enhanced 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  transition: all 0.2s ease;
+  will-change: transform, opacity;
+  filter: none;
+  backface-visibility: hidden;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Letter spacing adjustments for mobile */
+.netflix-logo-text .letter-space {
+  width: clamp(0.15rem, 1.5vw, 0.8rem);
+  display: inline-block;
+}
+
+/* Enhanced letter hover effects */
+.netflix-logo-text span:hover {
+  transform: scale(1.1) translateY(-5px);
+  text-shadow: 
+    0 0 20px rgba(229, 9, 20, 1),
+    0 0 40px rgba(229, 9, 20, 0.8),
+    0 0 60px rgba(229, 9, 20, 0.6);
+}
+
+/* Touch-friendly interactions for mobile */
+@media (hover: none) and (pointer: coarse) {
+  .netflix-logo-text span:active {
+    transform: scale(1.05) translateY(-2px);
+    transition: all 0.1s ease;
+  }
+  
+  .netflix-logo-text span:hover {
+    transform: none;
+    text-shadow: 
+      0 0 15px rgba(229, 9, 20, 0.9),
+      0 0 30px rgba(229, 9, 20, 0.7),
+      0 0 45px rgba(229, 9, 20, 0.5);
+  }
+}
+
+/* Performance optimizations for mobile */
+@media screen and (max-width: 768px) {
+  .netflix-logo-text {
+    filter: none !important;
+    -webkit-filter: none !important;
+  }
+  
+  .netflix-logo-text span {
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    perspective: 1000px;
+    filter: none !important;
+    -webkit-filter: none !important;
+    text-rendering: optimizeLegibility;
+  }
+  
+  .netflix-logo-glow {
+    will-change: transform, opacity;
+    transform-style: preserve-3d;
+  }
+  
+  .netflix-particles .netflix-particle {
+    will-change: transform, opacity;
+    contain: layout style paint;
+  }
+}
+
+.letter-m { animation-delay: 0.1s; }
+.letter-o { animation-delay: 0.2s; }
+.letter-v { animation-delay: 0.3s; }
+.letter-i { animation-delay: 0.4s; }
+.letter-e { animation-delay: 0.5s; }
+.letter-space { animation-delay: 0.6s; }
+.letter-f { animation-delay: 0.7s; }
+.letter-i2 { animation-delay: 0.8s; }
+.letter-n { animation-delay: 0.9s; }
+.letter-d { animation-delay: 1.0s; }
+.letter-e2 { animation-delay: 1.1s; }
+.letter-r { animation-delay: 1.2s; }
+
+/* Logo Glow Effect */
+.netflix-logo-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120%;
+  height: 120%;
+  background: radial-gradient(ellipse at center, 
+    rgba(229, 9, 20, 0.4) 0%, 
+    rgba(229, 9, 20, 0.2) 30%, 
+    transparent 70%);
+  border-radius: 50%;
+  filter: blur(20px);
+  animation: netflix-pulse-glow 3s ease-in-out infinite;
+  z-index: 1;
+}
+
+/* Logo Reflection */
+.netflix-logo-reflection {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: linear-gradient(to bottom, 
+    rgba(229, 9, 20, 0.3) 0%, 
+    transparent 100%);
+  transform: scaleY(-1);
+  opacity: 0.3;
+  filter: blur(2px);
+  z-index: 0;
+}
+
+/* Subtitle */
+.netflix-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: netflix-subtitle-reveal 1s ease-out 2s forwards;
+}
+
+.subtitle-line {
+  width: clamp(30px, 8vw, 80px);
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #e50914, transparent);
+  animation: netflix-line-expand 1.5s ease-out 2.5s forwards;
+  transform: scaleX(0);
+}
+
+.subtitle-text {
+  font-size: clamp(0.8rem, 2vw, 1.5rem);
+  font-weight: 400;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: clamp(2px, 1vw, 8px);
+  opacity: 0.8;
+}
+
+/* Sound Waves */
+.netflix-sound-waves {
+  position: absolute;
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  animation: netflix-waves-appear 1s ease-out 3s forwards;
+}
+
+.sound-wave {
+  width: 4px;
+  background: linear-gradient(to top, #e50914, #ff6b6b);
+  border-radius: 2px;
+  animation: netflix-wave-bounce 1.5s ease-in-out infinite;
+}
+
+.wave-1 {
+  height: 20px;
+  animation-delay: 0s;
+}
+
+.wave-2 {
+  height: 35px;
+  animation-delay: 0.2s;
+}
+
+.wave-3 {
+  height: 25px;
+  animation-delay: 0.4s;
+}
+
+/* Animation Phase Classes */
+.netflix-logo-container.initial {
+  opacity: 0;
+  animation: netflix-fade-in 0.5s ease-out forwards;
+}
+
+.netflix-logo-container.reveal .netflix-logo-text {
+  animation-play-state: running;
+}
+
+.netflix-logo-container.glow .netflix-logo-glow {
+  animation-play-state: running;
+}
+
+.netflix-logo-container.exit {
+  animation: netflix-fade-out 0.8s ease-in forwards;
+}
+
+/* Keyframe Animations */
+@keyframes netflix-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes netflix-fade-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes netflix-letter-reveal-enhanced {
+  0% {
+    opacity: 0;
+    transform: translateY(60px) rotateX(45deg) scale(0.9);
+  }
+  30% {
+    opacity: 0.5;
+    transform: translateY(15px) rotateX(20deg) scale(0.95);
+  }
+  60% {
+    opacity: 0.9;
+    transform: translateY(-5px) rotateX(-5deg) scale(1.03);
+  }
+  80% {
+    opacity: 0.98;
+    transform: translateY(1px) rotateX(1deg) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotateX(0deg) scale(1);
+  }
+}
+
+/* Fallback for older browsers */
+@keyframes netflix-letter-reveal {
+  0% {
+    opacity: 0;
+    transform: translateY(100px) rotateX(90deg);
+  }
+  50% {
+    opacity: 0.7;
+    transform: translateY(-10px) rotateX(-5deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotateX(0deg);
+  }
+}
+
+@keyframes netflix-pulse-glow {
+  0%, 100% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
+@keyframes netflix-subtitle-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes netflix-line-expand {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes netflix-waves-appear {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes netflix-wave-bounce {
+  0%, 100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(1.5);
+  }
+}
+
+@keyframes netflix-particle-float {
+  0%, 100% {
+    opacity: 0;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-50px) scale(1.5);
+  }
+}
+
+@keyframes netflix-gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Enhanced Mobile Responsive Design */
+
+/* Large tablets and small laptops */
+@media screen and (max-width: 1024px) {
+  .netflix-logo-text {
+    font-size: clamp(2.8rem, 6.5vw, 8rem);
+    letter-spacing: clamp(1.5px, 1.8vw, 12px);
+  }
+  
+  .subtitle-text {
+    font-size: clamp(0.7rem, 2.2vw, 1.3rem);
+  }
+}
+
+/* Tablets */
+@media screen and (max-width: 768px) {
+  .netflix-logo-container {
+    padding: 1rem;
+  }
+  
+  .netflix-logo-wrapper {
+    gap: 1.2rem;
+    padding: 0 1rem;
+    max-width: 95vw;
+  }
+  
+  .netflix-logo-text {
+    font-size: clamp(2.2rem, 9vw, 5rem);
+    letter-spacing: clamp(0.8px, 1.8vw, 8px);
+    line-height: 0.9;
+    text-align: center;
+    word-spacing: clamp(0.5px, 1.2vw, 4px);
+  }
+  
+  .netflix-logo-text span {
+    display: inline-block;
+    margin: 0 clamp(0px, 0.3vw, 1.5px);
+  }
+  
+  .netflix-logo-text .letter-space {
+    width: clamp(0.1rem, 1.2vw, 0.6rem);
+  }
+  
+  .subtitle-text {
+    font-size: clamp(0.65rem, 2.8vw, 1.1rem);
+    letter-spacing: clamp(0.4px, 1.4vw, 4px);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 92vw;
+    line-height: 1.2;
+  }
+  
+  .subtitle-line {
+    width: clamp(18px, 7vw, 45px);
+    height: 1.8px;
+  }
+  
+  .sound-wave {
+    width: 3.5px;
+    border-radius: 2px;
+  }
+  
+  .wave-1 { height: 14px; }
+  .wave-2 { height: 22px; }
+  .wave-3 { height: 17px; }
+  
+  .netflix-logo-glow {
+    width: 130%;
+    height: 130%;
+    filter: blur(12px);
+  }
+  
+  .netflix-particles .netflix-particle {
+    width: 1.8px;
+    height: 1.8px;
+  }
+}
+
+/* Mobile Phones */
+@media screen and (max-width: 480px) {
+  .netflix-logo-container {
+    padding: 0.8rem;
+  }
+  
+  .netflix-logo-wrapper {
+    gap: 1rem;
+    padding: 0 0.8rem;
+    max-width: 96vw;
+  }
+  
+  .netflix-logo-text {
+    font-size: clamp(1.8rem, 8.5vw, 3.8rem);
+    letter-spacing: clamp(0.4px, 1.3vw, 5px);
+    line-height: 0.88;
+    word-spacing: clamp(0.3px, 0.8vw, 3px);
+  }
+  
+  .netflix-logo-text span {
+    margin: 0 clamp(0px, 0.2vw, 1px);
+    animation-duration: 1s;
+  }
+  
+  .netflix-logo-text .letter-space {
+    width: clamp(0.08rem, 1vw, 0.4rem);
+  }
+  
+  .subtitle-text {
+    font-size: clamp(0.55rem, 2.5vw, 0.9rem);
+    letter-spacing: clamp(0.25px, 1.2vw, 2.5px);
+    max-width: 88vw;
+    line-height: 1.3;
+  }
+  
+  .subtitle-line {
+    width: clamp(12px, 5.5vw, 35px);
+    height: 1.2px;
+  }
+  
+  .netflix-particles .netflix-particle {
+    width: 1.2px;
+    height: 1.2px;
+  }
+  
+  .sound-wave {
+    width: 2.5px;
+    border-radius: 1.5px;
+  }
+  
+  .wave-1 { height: 10px; }
+  .wave-2 { height: 18px; }
+  .wave-3 { height: 13px; }
+  
+  .netflix-logo-glow {
+    width: 150%;
+    height: 150%;
+    filter: blur(8px);
+  }
+  
+  .netflix-sound-waves {
+    gap: 6px;
+  }
+}
+
+/* Extra small devices and older phones */
+@media screen and (max-width: 360px) {
+  .netflix-logo-container {
+    padding: 0.5rem;
+  }
+  
+  .netflix-logo-wrapper {
+    gap: 0.8rem;
+    padding: 0 0.5rem;
+    max-width: 98vw;
+  }
+  
+  .netflix-logo-text {
+    font-size: clamp(1.4rem, 7.5vw, 2.6rem);
+    letter-spacing: clamp(0.25px, 0.9vw, 2.5px);
+    line-height: 0.85;
+    word-spacing: clamp(0.2px, 0.6vw, 2px);
+  }
+  
+  .netflix-logo-text span {
+    margin: 0 clamp(0px, 0.15vw, 0.8px);
+    animation-duration: 1.1s;
+  }
+  
+  .netflix-logo-text .letter-space {
+    width: clamp(0.06rem, 0.8vw, 0.3rem);
+  }
+  
+  .subtitle-text {
+    font-size: clamp(0.45rem, 2.2vw, 0.75rem);
+    letter-spacing: clamp(0.2px, 1vw, 2px);
+    max-width: 85vw;
+    line-height: 1.4;
+  }
+  
+  .subtitle-line {
+    width: clamp(8px, 4.5vw, 25px);
+    height: 1px;
+  }
+  
+  .netflix-particles .netflix-particle {
+    width: 1px;
+    height: 1px;
+  }
+  
+  .netflix-sound-waves {
+    gap: 5px;
+    bottom: 8%;
+  }
+  
+  .sound-wave {
+    width: 2px;
+    border-radius: 1px;
+  }
+  
+  .wave-1 { height: 7px; }
+  .wave-2 { height: 14px; }
+  .wave-3 { height: 9px; }
+  
+  .netflix-logo-glow {
+    width: 170%;
+    height: 170%;
+    filter: blur(6px);
+  }
+}
+
+/* Ultra-small devices (< 320px) */
+@media screen and (max-width: 320px) {
+  .netflix-logo-text {
+    font-size: clamp(1.2rem, 7vw, 2.2rem);
+    letter-spacing: clamp(0.2px, 0.7vw, 2px);
+    line-height: 0.82;
+  }
+  
+  .netflix-logo-text span {
+    animation-duration: 1.2s;
+  }
+  
+  .subtitle-text {
+    font-size: clamp(0.4rem, 2vw, 0.65rem);
+    letter-spacing: clamp(0.15px, 0.8vw, 1.5px);
+    max-width: 82vw;
+  }
+  
+  .netflix-logo-wrapper {
+    gap: 0.7rem;
+    padding: 0 0.3rem;
+  }
+}
+
+@media screen and (max-height: 500px) and (orientation: landscape) {
+  .netflix-logo-wrapper {
+    gap: 1rem;
+  }
+  
+  .netflix-logo-text {
+    font-size: clamp(2rem, 8vh, 4rem);
+  }
+  
+  .subtitle-text {
+    font-size: clamp(0.5rem, 2vh, 1rem);
+  }
+  
+  .netflix-sound-waves {
+    bottom: 5%;
+  }
+}
+
+/* Advanced Mobile Features */
+@supports (backdrop-filter: blur(10px)) {
+  @media screen and (max-width: 768px) {
+    .netflix-background {
+      backdrop-filter: blur(2px);
+    }
+  }
+}
+
+/* Safe area support for notched devices */
+@supports (padding: max(0px)) {
+  @media screen and (max-width: 480px) {
+    .netflix-logo-container {
+      padding-top: max(1rem, env(safe-area-inset-top));
+      padding-bottom: max(1rem, env(safe-area-inset-bottom));
+      padding-left: max(0.5rem, env(safe-area-inset-left));
+      padding-right: max(0.5rem, env(safe-area-inset-right));
+    }
+  }
+}
+
+/* High refresh rate optimization */
+@media (min-resolution: 120dpi) {
+  .netflix-logo-text span {
+    animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .netflix-logo-text span,
+  .netflix-logo-glow,
+  .netflix-particle,
+  .sound-wave,
+  .netflix-gradient-overlay {
+    animation: none;
+  }
+  
+  .netflix-logo-text span {
+    opacity: 1;
+    transform: none;
+  }
+  
+  .netflix-subtitle {
+    opacity: 1;
+    transform: none;
+  }
+  
+  .subtitle-line {
+    transform: scaleX(1);
+  }
+  
+  .netflix-sound-waves {
+    opacity: 1;
+    transform: translateX(-50%);
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .netflix-logo-text {
+    color: #ff0000;
+    text-shadow: 0 0 10px rgba(255, 0, 0, 1);
+  }
+  
+  .subtitle-text {
+    color: #ffffff;
+  }
+  
+  .netflix-particle {
+    background: #ff0000;
+  }
+} 
