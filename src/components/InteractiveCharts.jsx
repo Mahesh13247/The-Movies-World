@@ -1,21 +1,26 @@
-import React, { useState, useEffect, useRef } from 'react';
-import './InteractiveCharts.css';
+import React, { useState, useEffect, useRef } from "react";
+import "./InteractiveCharts.css";
 
 /**
  * Interactive Line Chart Component
  */
-export const LineChart = ({ data, title, color = '#4facfe', height = 200 }) => {
+export const LineChart = ({ data, title, color = "#4facfe", height = 200 }) => {
   const canvasRef = useRef(null);
   const [hoveredPoint, setHoveredPoint] = useState(null);
-  const [tooltip, setTooltip] = useState({ show: false, x: 0, y: 0, content: '' });
+  const [tooltip, setTooltip] = useState({
+    show: false,
+    x: 0,
+    y: 0,
+    content: "",
+  });
 
   useEffect(() => {
     if (!data || data.length === 0) return;
 
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     const rect = canvas.getBoundingClientRect();
-    
+
     // Set canvas size
     canvas.width = rect.width * window.devicePixelRatio;
     canvas.height = height * window.devicePixelRatio;
@@ -30,15 +35,15 @@ export const LineChart = ({ data, title, color = '#4facfe', height = 200 }) => {
     const chartHeight = height - padding * 2;
 
     // Find min/max values
-    const values = data.map(d => d.value || d.views || d.users || 0);
+    const values = data.map((d) => d.value || d.views || d.users || 0);
     const minValue = Math.min(...values);
     const maxValue = Math.max(...values);
     const valueRange = maxValue - minValue || 1;
 
     // Draw grid lines
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
     ctx.lineWidth = 1;
-    
+
     // Horizontal grid lines
     for (let i = 0; i <= 5; i++) {
       const y = padding + (chartHeight / 5) * i;
@@ -65,8 +70,13 @@ export const LineChart = ({ data, title, color = '#4facfe', height = 200 }) => {
 
     data.forEach((point, index) => {
       const x = padding + (chartWidth / (data.length - 1)) * index;
-      const y = padding + chartHeight - ((point.value || point.views || point.users || 0) - minValue) / valueRange * chartHeight;
-      
+      const y =
+        padding +
+        chartHeight -
+        (((point.value || point.views || point.users || 0) - minValue) /
+          valueRange) *
+          chartHeight;
+
       if (index === 0) {
         ctx.moveTo(x, y);
       } else {
@@ -80,43 +90,59 @@ export const LineChart = ({ data, title, color = '#4facfe', height = 200 }) => {
     ctx.fillStyle = color;
     data.forEach((point, index) => {
       const x = padding + (chartWidth / (data.length - 1)) * index;
-      const y = padding + chartHeight - ((point.value || point.views || point.users || 0) - minValue) / valueRange * chartHeight;
-      
+      const y =
+        padding +
+        chartHeight -
+        (((point.value || point.views || point.users || 0) - minValue) /
+          valueRange) *
+          chartHeight;
+
       ctx.beginPath();
       ctx.arc(x, y, hoveredPoint === index ? 6 : 4, 0, Math.PI * 2);
       ctx.fill();
     });
 
     // Draw gradient fill
-    const gradient = ctx.createLinearGradient(0, padding, 0, padding + chartHeight);
-    gradient.addColorStop(0, color + '40');
-    gradient.addColorStop(1, color + '00');
-    
+    const gradient = ctx.createLinearGradient(
+      0,
+      padding,
+      0,
+      padding + chartHeight
+    );
+    gradient.addColorStop(0, color + "40");
+    gradient.addColorStop(1, color + "00");
+
     ctx.fillStyle = gradient;
     ctx.beginPath();
     ctx.moveTo(padding, padding + chartHeight);
-    
+
     data.forEach((point, index) => {
       const x = padding + (chartWidth / (data.length - 1)) * index;
-      const y = padding + chartHeight - ((point.value || point.views || point.users || 0) - minValue) / valueRange * chartHeight;
+      const y =
+        padding +
+        chartHeight -
+        (((point.value || point.views || point.users || 0) - minValue) /
+          valueRange) *
+          chartHeight;
       ctx.lineTo(x, y);
     });
-    
+
     ctx.lineTo(padding + chartWidth, padding + chartHeight);
     ctx.closePath();
     ctx.fill();
-
   }, [data, hoveredPoint, color, height]);
 
   const handleMouseMove = (e) => {
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const _y = e.clientY - rect.top;
 
     const padding = 40;
     const chartWidth = rect.width - padding * 2;
-    const pointIndex = Math.round(((x - padding) / chartWidth) * (data.length - 1));
+    const pointIndex = Math.round(
+      ((x - padding) / chartWidth) * (data.length - 1)
+    );
 
     if (pointIndex >= 0 && pointIndex < data.length) {
       setHoveredPoint(pointIndex);
@@ -125,14 +151,16 @@ export const LineChart = ({ data, title, color = '#4facfe', height = 200 }) => {
         show: true,
         x: e.clientX,
         y: e.clientY,
-        content: `${point.label || point.time || `Point ${pointIndex + 1}`}: ${point.value || point.views || point.users || 0}`
+        content: `${point.label || point.time || `Point ${pointIndex + 1}`}: ${
+          point.value || point.views || point.users || 0
+        }`,
       });
     }
   };
 
   const handleMouseLeave = () => {
     setHoveredPoint(null);
-    setTooltip({ show: false, x: 0, y: 0, content: '' });
+    setTooltip({ show: false, x: 0, y: 0, content: "" });
   };
 
   return (
@@ -146,13 +174,13 @@ export const LineChart = ({ data, title, color = '#4facfe', height = 200 }) => {
           onMouseLeave={handleMouseLeave}
         />
         {tooltip.show && (
-          <div 
+          <div
             className="chart-tooltip"
-            style={{ 
-              left: tooltip.x + 10, 
+            style={{
+              left: tooltip.x + 10,
               top: tooltip.y - 10,
-              position: 'fixed',
-              zIndex: 1000
+              position: "fixed",
+              zIndex: 1000,
             }}
           >
             {tooltip.content}
@@ -166,7 +194,7 @@ export const LineChart = ({ data, title, color = '#4facfe', height = 200 }) => {
 /**
  * Interactive Bar Chart Component
  */
-export const BarChart = ({ data, title, color = '#4facfe', height = 200 }) => {
+export const BarChart = ({ data, title, color = "#4facfe", height = 200 }) => {
   const [hoveredBar, setHoveredBar] = useState(null);
 
   return (
@@ -175,21 +203,27 @@ export const BarChart = ({ data, title, color = '#4facfe', height = 200 }) => {
       <div className="bar-chart-container" style={{ height: `${height}px` }}>
         <div className="bar-chart">
           {data.map((item, index) => {
-            const maxValue = Math.max(...data.map(d => d.value || d.views || d.users || 0));
-            const barHeight = ((item.value || item.views || item.users || 0) / maxValue) * (height - 40);
-            
+            const maxValue = Math.max(
+              ...data.map((d) => d.value || d.views || d.users || 0)
+            );
+            const barHeight =
+              ((item.value || item.views || item.users || 0) / maxValue) *
+              (height - 40);
+
             return (
               <div
                 key={index}
-                className={`bar ${hoveredBar === index ? 'hovered' : ''}`}
+                className={`bar ${hoveredBar === index ? "hovered" : ""}`}
                 style={{
                   height: `${barHeight}px`,
-                  backgroundColor: hoveredBar === index ? '#00f2fe' : color,
-                  transition: 'all 0.3s ease'
+                  backgroundColor: hoveredBar === index ? "#00f2fe" : color,
+                  transition: "all 0.3s ease",
                 }}
                 onMouseEnter={() => setHoveredBar(index)}
                 onMouseLeave={() => setHoveredBar(null)}
-                title={`${item.label || item.name}: ${item.value || item.views || item.users || 0}`}
+                title={`${item.label || item.name}: ${
+                  item.value || item.views || item.users || 0
+                }`}
               >
                 <span className="bar-value">
                   {item.value || item.views || item.users || 0}
@@ -226,12 +260,14 @@ export const ActivityFeed = ({ activities, maxItems = 10 }) => {
     <div className="activity-feed">
       <div className="activity-header">
         <h4>🔴 Live Activity</h4>
-        <span className="activity-count">{visibleActivities.length} recent</span>
+        <span className="activity-count">
+          {visibleActivities.length} recent
+        </span>
       </div>
       <div className="activity-list">
         {visibleActivities.map((activity, index) => (
-          <div 
-            key={activity.id || index} 
+          <div
+            key={activity.id || index}
             className="activity-item"
             style={{ animationDelay: `${index * 0.1}s` }}
           >
@@ -252,17 +288,17 @@ export const ActivityFeed = ({ activities, maxItems = 10 }) => {
  */
 export const SystemHealthMonitor = ({ healthData }) => {
   const getHealthColor = (value) => {
-    if (value >= 90) return '#4caf50';
-    if (value >= 75) return '#ff9800';
-    if (value >= 60) return '#f44336';
-    return '#e91e63';
+    if (value >= 90) return "#4caf50";
+    if (value >= 75) return "#ff9800";
+    if (value >= 60) return "#f44336";
+    return "#e91e63";
   };
 
   const getHealthStatus = (value) => {
-    if (value >= 90) return 'Excellent';
-    if (value >= 75) return 'Good';
-    if (value >= 60) return 'Fair';
-    return 'Poor';
+    if (value >= 90) return "Excellent";
+    if (value >= 75) return "Good";
+    if (value >= 60) return "Fair";
+    return "Poor";
   };
 
   if (!healthData) return null;
@@ -277,8 +313,9 @@ export const SystemHealthMonitor = ({ healthData }) => {
       </div>
       <div className="health-metrics">
         {Object.entries(healthData).map(([key, value]) => {
-          if (key === 'overall' || key === 'status' || key === 'timestamp') return null;
-          
+          if (key === "overall" || key === "status" || key === "timestamp")
+            return null;
+
           return (
             <div key={key} className="health-metric">
               <div className="metric-header">
@@ -286,11 +323,11 @@ export const SystemHealthMonitor = ({ healthData }) => {
                 <span className="metric-value">{value}%</span>
               </div>
               <div className="metric-bar">
-                <div 
+                <div
                   className="metric-fill"
                   style={{
                     width: `${value}%`,
-                    backgroundColor: getHealthColor(value)
+                    backgroundColor: getHealthColor(value),
                   }}
                 />
               </div>
@@ -315,8 +352,12 @@ export const GeographicMap = ({ geoData }) => {
         {geoData.map((country, index) => (
           <div
             key={country.code}
-            className={`geo-item ${selectedCountry === index ? 'selected' : ''}`}
-            onClick={() => setSelectedCountry(selectedCountry === index ? null : index)}
+            className={`geo-item ${
+              selectedCountry === index ? "selected" : ""
+            }`}
+            onClick={() =>
+              setSelectedCountry(selectedCountry === index ? null : index)
+            }
           >
             <div className="geo-info">
               <span className="country-flag">{country.flag}</span>
@@ -327,7 +368,7 @@ export const GeographicMap = ({ geoData }) => {
               <span className="geo-users">{country.users} users</span>
             </div>
             <div className="geo-bar">
-              <div 
+              <div
                 className="geo-fill"
                 style={{ width: `${country.percentage}%` }}
               />
@@ -349,13 +390,13 @@ export const RealTimeStats = ({ stats }) => {
     if (stats) {
       // Animate number changes
       const interval = setInterval(() => {
-        setAnimatedStats(prevStats => {
+        setAnimatedStats((prevStats) => {
           const newStats = { ...prevStats };
-          Object.keys(stats).forEach(key => {
-            if (typeof stats[key] === 'number' && key !== 'timestamp') {
+          Object.keys(stats).forEach((key) => {
+            if (typeof stats[key] === "number" && key !== "timestamp") {
               const diff = stats[key] - (prevStats[key] || 0);
               if (Math.abs(diff) > 0.1) {
-                newStats[key] = prevStats[key] + (diff * 0.1);
+                newStats[key] = prevStats[key] + diff * 0.1;
               } else {
                 newStats[key] = stats[key];
               }
@@ -379,34 +420,42 @@ export const RealTimeStats = ({ stats }) => {
         <div className="stat-card active-users">
           <div className="stat-icon">👥</div>
           <div className="stat-content">
-            <span className="stat-value">{Math.round(animatedStats.activeUsers || 0)}</span>
+            <span className="stat-value">
+              {Math.round(animatedStats.activeUsers || 0)}
+            </span>
             <span className="stat-label">Active Users</span>
           </div>
           <div className="stat-pulse"></div>
         </div>
-        
+
         <div className="stat-card current-views">
           <div className="stat-icon">👁️</div>
           <div className="stat-content">
-            <span className="stat-value">{Math.round(animatedStats.currentViews || 0)}</span>
+            <span className="stat-value">
+              {Math.round(animatedStats.currentViews || 0)}
+            </span>
             <span className="stat-label">Current Views</span>
           </div>
           <div className="stat-pulse"></div>
         </div>
-        
+
         <div className="stat-card searches">
           <div className="stat-icon">🔍</div>
           <div className="stat-content">
-            <span className="stat-value">{Math.round(animatedStats.searchesPerMinute || 0)}</span>
+            <span className="stat-value">
+              {Math.round(animatedStats.searchesPerMinute || 0)}
+            </span>
             <span className="stat-label">Searches/min</span>
           </div>
           <div className="stat-pulse"></div>
         </div>
-        
+
         <div className="stat-card server-load">
           <div className="stat-icon">⚡</div>
           <div className="stat-content">
-            <span className="stat-value">{Math.round(animatedStats.serverLoad || 0)}%</span>
+            <span className="stat-value">
+              {Math.round(animatedStats.serverLoad || 0)}%
+            </span>
             <span className="stat-label">Server Load</span>
           </div>
           <div className="stat-pulse"></div>
@@ -415,4 +464,3 @@ export const RealTimeStats = ({ stats }) => {
     </div>
   );
 };
-

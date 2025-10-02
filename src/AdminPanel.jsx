@@ -2,11 +2,10 @@ import React, { useState, useEffect } from "react";
 import "./AdminPanel.css";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { 
-  isAdmin, 
-  isUser, 
-  switchToAdmin, 
-  switchToUser, 
+import {
+  isAdmin,
+  switchToAdmin,
+  switchToUser,
   changeAdminPin,
   setSectionPin,
   resetSectionPin,
@@ -14,7 +13,7 @@ import {
   updateAutoLockSettings,
   getAutoLockSettings,
   resetAdminPinToDefault,
-  getSystemInfo
+  getSystemInfo,
 } from "./utils/userRoles";
 import {
   getMovieStats,
@@ -26,7 +25,7 @@ import {
   exportUserData,
   createBackup,
   restoreFromBackup,
-  getStorageUsage
+  getStorageUsage,
 } from "./utils/adminData";
 import {
   realTimeManager,
@@ -35,9 +34,8 @@ import {
   generateTrendingData,
   generatePerformanceMetrics,
   checkSystemHealth,
-  generateActivityHeatmap,
   generateGeographicData,
-  generateNotifications
+  generateNotifications,
 } from "./utils/realTimeData";
 import {
   LineChart,
@@ -45,22 +43,26 @@ import {
   ActivityFeed,
   SystemHealthMonitor,
   GeographicMap,
-  RealTimeStats
+  RealTimeStats,
 } from "./components/InteractiveCharts";
 import {
   NotificationSystem,
   ToastNotification,
   AlertBanner,
   SystemStatusIndicator,
-  LiveActivityTicker
+  LiveActivityTicker,
 } from "./components/NotificationSystem";
 import { MovieManagement } from "./components/MovieManagement";
-import { MobileOptimizations, useMobilePerformance, useSafeArea } from "./components/MobileOptimizations";
+import {
+  MobileOptimizations,
+  useMobilePerformance,
+  useSafeArea,
+} from "./components/MobileOptimizations";
 
 function AdminPanel() {
   const { t } = useTranslation();
   const [currentUserRole, setCurrentUserRole] = useState(() => {
-    const role = localStorage.getItem('userRole') || 'user';
+    const role = localStorage.getItem("userRole") || "user";
     return role;
   });
   const [adminPinInput, setAdminPinInput] = useState("");
@@ -71,12 +73,20 @@ function AdminPanel() {
   const [showAdminSwitch, setShowAdminSwitch] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Auto-lock settings
-  const [autoLockSettings, setAutoLockSettingsState] = useState(() => getAutoLockSettings());
-  const [inactivityTimeout, setInactivityTimeout] = useState(() => Math.floor(getAutoLockSettings().inactivityTimeout / 60000));
-  const [sessionTimeout, setSessionTimeout] = useState(() => Math.floor(getAutoLockSettings().sessionTimeout / 60000));
-  const [autoLockEnabled, setAutoLockEnabled] = useState(() => getAutoLockSettings().enabled);
+  const [_autoLockSettings, setAutoLockSettingsState] = useState(() =>
+    getAutoLockSettings()
+  );
+  const [inactivityTimeout, setInactivityTimeout] = useState(() =>
+    Math.floor(getAutoLockSettings().inactivityTimeout / 60000)
+  );
+  const [sessionTimeout, setSessionTimeout] = useState(() =>
+    Math.floor(getAutoLockSettings().sessionTimeout / 60000)
+  );
+  const [autoLockEnabled, setAutoLockEnabled] = useState(
+    () => getAutoLockSettings().enabled
+  );
   const [systemInfo, setSystemInfo] = useState(() => getSystemInfo());
 
   // Enhanced admin panel state
@@ -84,18 +94,30 @@ function AdminPanel() {
   const [userStats, setUserStats] = useState(() => getUserStats());
   const [analyticsData, setAnalyticsData] = useState(() => getAnalyticsData());
   const [topMovies, setTopMovies] = useState(() => getTopMovies());
-  const [recentActivity, setRecentActivity] = useState(() => getRecentActivity());
+  const [_recentActivity, setRecentActivity] = useState(() =>
+    getRecentActivity()
+  );
   const [backupHistory, setBackupHistory] = useState(() => getBackupHistory());
   const [storageUsage, setStorageUsage] = useState(() => getStorageUsage());
-  
+
   // Real-time data states
-  const [liveActivity, setLiveActivity] = useState(() => generateLiveActivity());
-  const [realTimeStats, setRealTimeStats] = useState(() => generateRealTimeStats());
-  const [trendingData, setTrendingData] = useState(() => generateTrendingData());
-  const [performanceMetrics, setPerformanceMetrics] = useState(() => generatePerformanceMetrics());
+  const [liveActivity, setLiveActivity] = useState(() =>
+    generateLiveActivity()
+  );
+  const [realTimeStats, setRealTimeStats] = useState(() =>
+    generateRealTimeStats()
+  );
+  const [trendingData, setTrendingData] = useState(() =>
+    generateTrendingData()
+  );
+  const [performanceMetrics, setPerformanceMetrics] = useState(() =>
+    generatePerformanceMetrics()
+  );
   const [systemHealth, setSystemHealth] = useState(() => checkSystemHealth());
   const [geoData, setGeoData] = useState(() => generateGeographicData());
-  const [notifications, setNotifications] = useState(() => generateNotifications());
+  const [notifications, setNotifications] = useState(() =>
+    generateNotifications()
+  );
   const [isRealTimeActive, setIsRealTimeActive] = useState(false);
   const [toastNotification, setToastNotification] = useState(null);
   const [alertBanner, setAlertBanner] = useState(null);
@@ -107,12 +129,12 @@ function AdminPanel() {
   // Update current user role when it changes
   useEffect(() => {
     const handleStorageChange = () => {
-      setCurrentUserRole(localStorage.getItem('userRole') || 'user');
+      setCurrentUserRole(localStorage.getItem("userRole") || "user");
       setSystemInfo(getSystemInfo());
     };
-    
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   // Update auto-lock settings when they change
@@ -124,9 +146,9 @@ function AdminPanel() {
       setSessionTimeout(Math.floor(settings.sessionTimeout / 60000));
       setAutoLockEnabled(settings.enabled);
     };
-    
-    window.addEventListener('storage', handleSettingsChange);
-    return () => window.removeEventListener('storage', handleSettingsChange);
+
+    window.addEventListener("storage", handleSettingsChange);
+    return () => window.removeEventListener("storage", handleSettingsChange);
   }, []);
 
   // Refresh all admin data
@@ -159,9 +181,10 @@ function AdminPanel() {
         setRealTimeStats(generateRealTimeStats());
         setTrendingData(generateTrendingData());
         setSystemHealth(checkSystemHealth());
-        
+
         // Update other data less frequently
-        if (Math.random() < 0.3) { // 30% chance
+        if (Math.random() < 0.3) {
+          // 30% chance
           setPerformanceMetrics(generatePerformanceMetrics());
           setGeoData(generateGeographicData());
           refreshAdminData();
@@ -195,7 +218,7 @@ function AdminPanel() {
     try {
       const result = switchToAdmin(adminPinInput);
       if (result.success) {
-        setCurrentUserRole('admin');
+        setCurrentUserRole("admin");
         setShowAdminSwitch(false);
         setAdminPinInput("");
         setSystemInfo(getSystemInfo());
@@ -204,7 +227,7 @@ function AdminPanel() {
         toast.error(result.message);
         setAdminPinInput("");
       }
-    } catch (error) {
+    } catch {
       toast.error("An error occurred while switching to admin");
       setAdminPinInput("");
     } finally {
@@ -217,11 +240,11 @@ function AdminPanel() {
     try {
       const result = switchToUser();
       if (result.success) {
-        setCurrentUserRole('user');
+        setCurrentUserRole("user");
         setSystemInfo(getSystemInfo());
         toast.success(result.message);
       }
-    } catch (error) {
+    } catch {
       toast.error("An error occurred while switching to user");
     } finally {
       setIsLoading(false);
@@ -252,7 +275,7 @@ function AdminPanel() {
         toast.error(result.message);
         setAdminPinInput("");
       }
-    } catch (error) {
+    } catch {
       toast.error("An error occurred while changing admin PIN");
       setAdminPinInput("");
     } finally {
@@ -270,7 +293,7 @@ function AdminPanel() {
       } else {
         toast.error(result.message);
       }
-    } catch (error) {
+    } catch {
       toast.error("An error occurred while resetting admin PIN");
     } finally {
       setIsLoading(false);
@@ -298,7 +321,7 @@ function AdminPanel() {
       } else {
         toast.error(result.message);
       }
-    } catch (error) {
+    } catch {
       toast.error("An error occurred while setting section PIN");
     } finally {
       setIsLoading(false);
@@ -321,7 +344,7 @@ function AdminPanel() {
       } else {
         toast.error(result.message);
       }
-    } catch (error) {
+    } catch {
       toast.error("An error occurred while resetting section PIN");
     } finally {
       setIsLoading(false);
@@ -332,7 +355,7 @@ function AdminPanel() {
     const settings = {
       enabled: autoLockEnabled,
       inactivityTimeout: inactivityTimeout * 60000,
-      sessionTimeout: sessionTimeout * 60000
+      sessionTimeout: sessionTimeout * 60000,
     };
 
     setIsLoading(true);
@@ -344,7 +367,7 @@ function AdminPanel() {
       } else {
         toast.error(result.message);
       }
-    } catch (error) {
+    } catch {
       toast.error("An error occurred while updating auto-lock settings");
     } finally {
       setIsLoading(false);
@@ -372,22 +395,34 @@ function AdminPanel() {
   };
 
   // Export data handler
-  const handleExportData = async (format = 'json') => {
+  const handleExportData = async (format = "json") => {
     setIsLoading(true);
-    showToast('info', 'Export Started', `Preparing ${format.toUpperCase()} export...`);
-    
+    showToast(
+      "info",
+      "Export Started",
+      `Preparing ${format.toUpperCase()} export...`
+    );
+
     try {
       const result = exportUserData(format);
       if (result.success) {
         toast.success(result.message);
-        showToast('success', 'Export Complete', `Data exported successfully as ${format.toUpperCase()}`);
+        showToast(
+          "success",
+          "Export Complete",
+          `Data exported successfully as ${format.toUpperCase()}`
+        );
       } else {
         toast.error(result.message);
-        showToast('error', 'Export Failed', result.message);
+        showToast("error", "Export Failed", result.message);
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to export data");
-      showToast('error', 'Export Error', 'An unexpected error occurred during export');
+      showToast(
+        "error",
+        "Export Error",
+        "An unexpected error occurred during export"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -396,34 +431,47 @@ function AdminPanel() {
   // Create backup handler
   const handleCreateBackup = async (options = {}) => {
     setIsLoading(true);
-    showToast('info', 'Backup Started', 'Creating system backup...');
-    
+    showToast("info", "Backup Started", "Creating system backup...");
+
     try {
       const result = createBackup(options);
       if (result.success) {
         toast.success(result.message);
-        showToast('success', 'Backup Complete', 'System backup created successfully');
+        showToast(
+          "success",
+          "Backup Complete",
+          "System backup created successfully"
+        );
         setBackupHistory(getBackupHistory());
-        
+
         // Show alert for successful backup
-        showAlert('success', 'Backup Created', 'Your system backup has been created and is ready for download.', {
-          text: 'View Backups',
-          onClick: () => setActiveTab('backup')
-        });
+        showAlert(
+          "success",
+          "Backup Created",
+          "Your system backup has been created and is ready for download.",
+          {
+            text: "View Backups",
+            onClick: () => setActiveTab("backup"),
+          }
+        );
       } else {
         toast.error(result.message);
-        showToast('error', 'Backup Failed', result.message);
+        showToast("error", "Backup Failed", result.message);
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to create backup");
-      showToast('error', 'Backup Error', 'An unexpected error occurred during backup');
+      showToast(
+        "error",
+        "Backup Error",
+        "An unexpected error occurred during backup"
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   // Restore backup handler
-  const handleRestoreBackup = async (backupData) => {
+  const _handleRestoreBackup = async (backupData) => {
     setIsLoading(true);
     try {
       const result = restoreFromBackup(backupData);
@@ -433,7 +481,7 @@ function AdminPanel() {
       } else {
         toast.error(result.message);
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to restore backup");
     } finally {
       setIsLoading(false);
@@ -441,7 +489,7 @@ function AdminPanel() {
   };
 
   // Add movie handler (placeholder)
-  const handleAddMovie = () => {
+  const _handleAddMovie = () => {
     toast.info("Add movie functionality would be implemented here");
   };
 
@@ -460,15 +508,13 @@ function AdminPanel() {
 
   // Notification handlers
   const handleMarkAsRead = (notificationId) => {
-    setNotifications(prev => 
-      prev.map(n => n.id === notificationId ? { ...n, unread: false } : n)
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === notificationId ? { ...n, unread: false } : n))
     );
   };
 
   const handleMarkAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(n => ({ ...n, unread: false }))
-    );
+    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
   };
 
   const showToast = (type, title, message, duration = 5000) => {
@@ -477,7 +523,7 @@ function AdminPanel() {
       title,
       message,
       duration,
-      id: Date.now()
+      id: Date.now(),
     });
   };
 
@@ -487,7 +533,7 @@ function AdminPanel() {
       title,
       message,
       action,
-      id: Date.now()
+      id: Date.now(),
     });
   };
 
@@ -510,8 +556,8 @@ function AdminPanel() {
             <div className="card-icon">🔒</div>
             <h2>{t("access_required")}</h2>
             <p>{t("need_admin_privileges")}</p>
-            
-            <button 
+
+            <button
               onClick={() => setShowAdminSwitch(true)}
               className="admin-button primary"
               disabled={isLoading}
@@ -519,16 +565,22 @@ function AdminPanel() {
               {isLoading ? t("loading") : `👑 ${t("switch_to_admin")}`}
             </button>
           </div>
-          
+
           {showAdminSwitch && (
-            <div className="modal-overlay" onClick={() => {
-              setShowAdminSwitch(false);
-              setAdminPinInput("");
-            }}>
-              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div
+              className="modal-overlay"
+              onClick={() => {
+                setShowAdminSwitch(false);
+                setAdminPinInput("");
+              }}
+            >
+              <div
+                className="modal-content"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <div className="modal-header">
                   <h3>🔐 {t("admin_authentication")}</h3>
-                  <button 
+                  <button
                     className="modal-close"
                     onClick={() => {
                       setShowAdminSwitch(false);
@@ -554,27 +606,29 @@ function AdminPanel() {
                     />
                     <div className="pin-dots">
                       {[...Array(4)].map((_, i) => (
-                        <div 
-                          key={i} 
-                          className={`pin-dot ${i < adminPinInput.length ? 'filled' : ''}`}
+                        <div
+                          key={i}
+                          className={`pin-dot ${
+                            i < adminPinInput.length ? "filled" : ""
+                          }`}
                         />
                       ))}
                     </div>
                   </div>
                 </div>
                 <div className="modal-footer">
-                  <button 
-                    onClick={handleAdminSwitch} 
+                  <button
+                    onClick={handleAdminSwitch}
                     className="admin-button primary"
                     disabled={isLoading || adminPinInput.length !== 4}
                   >
                     {isLoading ? t("authenticating") : t("switch_to_admin")}
                   </button>
-                  <button 
+                  <button
                     onClick={() => {
                       setShowAdminSwitch(false);
                       setAdminPinInput("");
-                    }} 
+                    }}
                     className="admin-button secondary"
                   >
                     {t("cancel")}
@@ -595,20 +649,22 @@ function AdminPanel() {
         <h1 className="admin-title">🔐 Admin Panel</h1>
         <div className="global-search">
           <div className="search-container">
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder={t("search_movies") + ", users, settings..."}
               className="global-search-input"
               onKeyPress={(e) => {
-                if (e.key === 'Enter') {
+                if (e.key === "Enter") {
                   handleGlobalSearch(e.target.value);
                 }
               }}
             />
-            <button 
+            <button
               className="search-btn"
               onClick={(e) => {
-                const input = e.target.closest('.search-container').querySelector('input');
+                const input = e.target
+                  .closest(".search-container")
+                  .querySelector("input");
                 handleGlobalSearch(input.value);
               }}
             >
@@ -648,7 +704,7 @@ function AdminPanel() {
             <span className="status-icon">👑</span>
             <span>Admin Mode</span>
           </div>
-          <NotificationSystem 
+          <NotificationSystem
             notifications={notifications}
             onMarkAsRead={handleMarkAsRead}
             onMarkAllAsRead={handleMarkAllAsRead}
@@ -676,7 +732,7 @@ function AdminPanel() {
               </div>
             </div>
           </div>
-          <button 
+          <button
             onClick={handleSwitchToUser}
             className="logout-btn"
             disabled={isLoading}
@@ -688,40 +744,44 @@ function AdminPanel() {
 
       <div className="admin-content">
         {alertBanner && (
-          <AlertBanner 
+          <AlertBanner
             alert={alertBanner}
             onDismiss={() => setAlertBanner(null)}
           />
         )}
-        
+
         <LiveActivityTicker activities={liveActivity.slice(0, 1)} />
-        
+
         <div className="tab-navigation">
           <button
-            className={`tab-button ${activeTab === "dashboard" ? "active" : ""}`}
+            className={`tab-button ${
+              activeTab === "dashboard" ? "active" : ""
+            }`}
             onClick={() => setActiveTab("dashboard")}
           >
             📊 {t("dashboard")}
           </button>
-          <button 
+          <button
             className={`tab-button ${activeTab === "movies" ? "active" : ""}`}
             onClick={() => setActiveTab("movies")}
           >
             🎬 {t("movies_management")}
           </button>
-          <button 
+          <button
             className={`tab-button ${activeTab === "users" ? "active" : ""}`}
             onClick={() => setActiveTab("users")}
           >
             👥 {t("users_management")}
           </button>
-          <button 
-            className={`tab-button ${activeTab === "analytics" ? "active" : ""}`}
+          <button
+            className={`tab-button ${
+              activeTab === "analytics" ? "active" : ""
+            }`}
             onClick={() => setActiveTab("analytics")}
           >
             📈 {t("analytics")}
           </button>
-          <button 
+          <button
             className={`tab-button ${activeTab === "security" ? "active" : ""}`}
             onClick={() => setActiveTab("security")}
           >
@@ -752,7 +812,7 @@ function AdminPanel() {
             <div className="dashboard-content">
               {/* Real-time Stats */}
               <RealTimeStats stats={realTimeStats} />
-              
+
               {/* Overview Stats */}
               <div className="dashboard-overview">
                 <h2>🎯 {t("system_overview")}</h2>
@@ -762,58 +822,83 @@ function AdminPanel() {
                     <div className="card-content">
                       <h3>{t("total_movies")}</h3>
                       <p className="card-value">{movieStats.totalMovies}</p>
-                      <p className="card-trend positive">+{movieStats.recentlyAdded} {t("added_this_week")}</p>
+                      <p className="card-trend positive">
+                        +{movieStats.recentlyAdded} {t("added_this_week")}
+                      </p>
                     </div>
-                </div>
-                
+                  </div>
+
                   <div className="overview-card success">
                     <div className="card-icon">👥</div>
                     <div className="card-content">
                       <h3>{t("active_users")}</h3>
                       <p className="card-value">{userStats.activeUsers}</p>
-                      <p className="card-trend positive">+{userStats.newUsersToday} {t("new_today")}</p>
+                      <p className="card-trend positive">
+                        +{userStats.newUsersToday} {t("new_today")}
+                      </p>
                     </div>
-                </div>
-                
+                  </div>
+
                   <div className="overview-card warning">
                     <div className="card-icon">📊</div>
                     <div className="card-content">
                       <h3>{t("total_views")}</h3>
                       <p className="card-value">{movieStats.totalViews}</p>
-                      <p className="card-trend positive">{analyticsData.changeFromLastPeriod?.views || '+0%'} vs yesterday</p>
+                      <p className="card-trend positive">
+                        {analyticsData.changeFromLastPeriod?.views || "+0%"} vs
+                        yesterday
+                      </p>
                     </div>
-                </div>
-                
+                  </div>
+
                   <div className="overview-card info">
                     <div className="card-icon">⚡</div>
                     <div className="card-content">
                       <h3>{t("system_health")}</h3>
                       <p className="card-value">{systemHealth.overall}%</p>
-                      <p className="card-trend neutral">{systemHealth.status}</p>
+                      <p className="card-trend neutral">
+                        {systemHealth.status}
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Interactive Charts and Activity */}
-              <div className="dashboard-charts-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '20px', marginBottom: '30px' }}>
+              <div
+                className="dashboard-charts-grid"
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
+                  gap: "20px",
+                  marginBottom: "30px",
+                }}
+              >
                 <ActivityFeed activities={liveActivity} />
                 <SystemHealthMonitor healthData={systemHealth} />
               </div>
-              
-              <div className="dashboard-charts-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '20px', marginBottom: '30px' }}>
-                <LineChart 
-                  data={performanceMetrics.slice(-12)} 
+
+              <div
+                className="dashboard-charts-grid"
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
+                  gap: "20px",
+                  marginBottom: "30px",
+                }}
+              >
+                <LineChart
+                  data={performanceMetrics.slice(-12)}
                   title="📊 Performance Trends (Last 12 Hours)"
                   color="#4facfe"
                 />
-                <BarChart 
-                  data={trendingData} 
+                <BarChart
+                  data={trendingData}
                   title="🔥 Trending Movies"
                   color="#00f2fe"
                 />
               </div>
-              
+
               <GeographicMap geoData={geoData} />
 
               {/* System Status */}
@@ -826,55 +911,85 @@ function AdminPanel() {
                       <span className="status-title">{t("admin_status")}</span>
                       <span className="status-badge active">{t("active")}</span>
                     </div>
-                    <p className="status-description">Full administrative privileges</p>
+                    <p className="status-description">
+                      Full administrative privileges
+                    </p>
                   </div>
-                  
+
                   <div className="status-card">
                     <div className="status-header">
                       <span className="status-icon">🔒</span>
-                      <span className="status-title">{t("protected_sections")}</span>
-                      <span className="status-badge">{systemInfo.sectionCount}</span>
+                      <span className="status-title">
+                        {t("protected_sections")}
+                      </span>
+                      <span className="status-badge">
+                        {systemInfo.sectionCount}
+                      </span>
                     </div>
-                    <p className="status-description">Sections with PIN protection</p>
+                    <p className="status-description">
+                      Sections with PIN protection
+                    </p>
                   </div>
-                  
+
                   <div className="status-card">
                     <div className="status-header">
                       <span className="status-icon">⏰</span>
                       <span className="status-title">{t("auto_lock")}</span>
-                      <span className={`status-badge ${systemInfo.autoLockEnabled ? 'active' : 'inactive'}`}>
-                        {systemInfo.autoLockEnabled ? t("enabled") : t("disabled")}
+                      <span
+                        className={`status-badge ${
+                          systemInfo.autoLockEnabled ? "active" : "inactive"
+                        }`}
+                      >
+                        {systemInfo.autoLockEnabled
+                          ? t("enabled")
+                          : t("disabled")}
                       </span>
                     </div>
-                    <p className="status-description">Automatic section locking</p>
+                    <p className="status-description">
+                      Automatic section locking
+                    </p>
                   </div>
-                  
+
                   <div className="status-card">
                     <div className="status-header">
                       <span className="status-icon">🔐</span>
                       <span className="status-title">{t("admin_pin")}</span>
-                      <span className={`status-badge ${systemInfo.currentAdminPin === systemInfo.defaultAdminPin ? 'warning' : 'success'}`}>
-                    {systemInfo.currentAdminPin === systemInfo.defaultAdminPin ? t("default") : t("custom")}
+                      <span
+                        className={`status-badge ${
+                          systemInfo.currentAdminPin ===
+                          systemInfo.defaultAdminPin
+                            ? "warning"
+                            : "success"
+                        }`}
+                      >
+                        {systemInfo.currentAdminPin ===
+                        systemInfo.defaultAdminPin
+                          ? t("default")
+                          : t("custom")}
                       </span>
                     </div>
-                    <p className="status-description">PIN configuration status</p>
+                    <p className="status-description">
+                      PIN configuration status
+                    </p>
                   </div>
                 </div>
               </div>
-              
+
               {/* Quick Actions */}
               <div className="dashboard-section">
                 <h3>🚀 {t("quick_actions")}</h3>
                 <div className="quick-actions-grid">
-                  <button 
+                  <button
                     onClick={() => setActiveTab("movies")}
                     className="quick-action-btn primary"
                   >
                     <span className="action-icon">🎬</span>
                     <span className="action-text">{t("manage_movies")}</span>
-                    <span className="action-desc">Add, edit, or remove movies</span>
+                    <span className="action-desc">
+                      Add, edit, or remove movies
+                    </span>
                   </button>
-                  <button 
+                  <button
                     onClick={() => setActiveTab("users")}
                     className="quick-action-btn success"
                   >
@@ -882,20 +997,24 @@ function AdminPanel() {
                     <span className="action-text">{t("user_management")}</span>
                     <span className="action-desc">View and manage users</span>
                   </button>
-                  <button 
+                  <button
                     onClick={() => setActiveTab("analytics")}
                     className="quick-action-btn info"
                   >
                     <span className="action-icon">📈</span>
                     <span className="action-text">{t("view_analytics")}</span>
-                    <span className="action-desc">Detailed reports and insights</span>
+                    <span className="action-desc">
+                      Detailed reports and insights
+                    </span>
                   </button>
-                  <button 
+                  <button
                     onClick={() => setActiveTab("security")}
                     className="quick-action-btn warning"
                   >
                     <span className="action-icon">🔐</span>
-                    <span className="action-text">{t("security_settings")}</span>
+                    <span className="action-text">
+                      {t("security_settings")}
+                    </span>
                     <span className="action-desc">Manage PINs and access</span>
                   </button>
                 </div>
@@ -908,33 +1027,54 @@ function AdminPanel() {
               <MovieManagement
                 movies={topMovies}
                 onAddMovie={(movieData) => {
-                  showToast('success', 'Movie Added', `"${movieData.title}" has been added successfully`);
+                  showToast(
+                    "success",
+                    "Movie Added",
+                    `"${movieData.title}" has been added successfully`
+                  );
                   // In a real app, this would make an API call
-                  console.log('Adding movie:', movieData);
+                  console.log("Adding movie:", movieData);
                 }}
                 onEditMovie={(movieId, movieData) => {
-                  showToast('success', 'Movie Updated', `"${movieData.title}" has been updated successfully`);
+                  showToast(
+                    "success",
+                    "Movie Updated",
+                    `"${movieData.title}" has been updated successfully`
+                  );
                   // In a real app, this would make an API call
-                  console.log('Editing movie:', movieId, movieData);
+                  console.log("Editing movie:", movieId, movieData);
                 }}
                 onDeleteMovie={(movieId) => {
-                  const movie = topMovies.find(m => m.id === movieId);
+                  const movie = topMovies.find((m) => m.id === movieId);
                   if (movie) {
-                    showAlert('warning', 'Confirm Delete', `Are you sure you want to delete "${movie.title}"?`, {
-                      text: 'Delete',
-                      onClick: () => {
-                        showToast('success', 'Movie Deleted', `"${movie.title}" has been deleted`);
-                        setAlertBanner(null);
-                        // In a real app, this would make an API call
-                        console.log('Deleting movie:', movieId);
+                    showAlert(
+                      "warning",
+                      "Confirm Delete",
+                      `Are you sure you want to delete "${movie.title}"?`,
+                      {
+                        text: "Delete",
+                        onClick: () => {
+                          showToast(
+                            "success",
+                            "Movie Deleted",
+                            `"${movie.title}" has been deleted`
+                          );
+                          setAlertBanner(null);
+                          // In a real app, this would make an API call
+                          console.log("Deleting movie:", movieId);
+                        },
                       }
-                    });
+                    );
                   }
                 }}
                 onBulkAction={(action, movieIds) => {
-                  showToast('info', 'Bulk Action', `${action} action performed on ${movieIds.length} movies`);
+                  showToast(
+                    "info",
+                    "Bulk Action",
+                    `${action} action performed on ${movieIds.length} movies`
+                  );
                   // In a real app, this would handle bulk operations
-                  console.log('Bulk action:', action, movieIds);
+                  console.log("Bulk action:", action, movieIds);
                 }}
               />
             </div>
@@ -945,8 +1085,15 @@ function AdminPanel() {
               <div className="content-header">
                 <h2>👥 {t("user_management")}</h2>
                 <div className="header-actions">
-                  <button className="export-btn" onClick={() => handleExportData('json')}>📊 {t("export_data")}</button>
-                  <button className="add-user-btn" onClick={handleAddUser}>➕ {t("add_user")}</button>
+                  <button
+                    className="export-btn"
+                    onClick={() => handleExportData("json")}
+                  >
+                    📊 {t("export_data")}
+                  </button>
+                  <button className="add-user-btn" onClick={handleAddUser}>
+                    ➕ {t("add_user")}
+                  </button>
                 </div>
               </div>
 
@@ -968,21 +1115,29 @@ function AdminPanel() {
                 <div className="stat-card warning">
                   <span className="stat-icon">📈</span>
                   <div className="stat-info">
-                    <span className="stat-value">{userStats.newUsersToday}</span>
+                    <span className="stat-value">
+                      {userStats.newUsersToday}
+                    </span>
                     <span className="stat-label">{t("new_today")}</span>
                   </div>
                 </div>
                 <div className="stat-card info">
                   <span className="stat-icon">⏱️</span>
                   <div className="stat-info">
-                    <span className="stat-value">{userStats.avgSessionTime}</span>
+                    <span className="stat-value">
+                      {userStats.avgSessionTime}
+                    </span>
                     <span className="stat-label">{t("avg_session")}</span>
                   </div>
                 </div>
               </div>
 
               <div className="users-filters">
-                <input type="text" placeholder="Search users..." className="search-input" />
+                <input
+                  type="text"
+                  placeholder="Search users..."
+                  className="search-input"
+                />
                 <select className="filter-select">
                   <option>All Roles</option>
                   <option>Admin</option>
@@ -1044,24 +1199,40 @@ function AdminPanel() {
                   </select>
                 </div>
               </div>
-              
+
               {/* Interactive Analytics Charts */}
-              <div className="analytics-charts-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '20px', marginBottom: '30px' }}>
-                <LineChart 
-                  data={analyticsData.dailyViews} 
+              <div
+                className="analytics-charts-grid"
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
+                  gap: "20px",
+                  marginBottom: "30px",
+                }}
+              >
+                <LineChart
+                  data={analyticsData.dailyViews}
                   title="📊 Daily Views Trend"
                   color="#667eea"
                 />
-                <BarChart 
-                  data={analyticsData.popularGenres} 
+                <BarChart
+                  data={analyticsData.popularGenres}
                   title="🎭 Popular Genres"
                   color="#764ba2"
                 />
               </div>
-              
-              <div className="analytics-charts-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '20px', marginBottom: '30px' }}>
-                <LineChart 
-                  data={performanceMetrics} 
+
+              <div
+                className="analytics-charts-grid"
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
+                  gap: "20px",
+                  marginBottom: "30px",
+                }}
+              >
+                <LineChart
+                  data={performanceMetrics}
                   title="⚡ Server Performance"
                   color="#4facfe"
                 />
@@ -1075,7 +1246,9 @@ function AdminPanel() {
                     <span className="metric-title">Total Views</span>
                   </div>
                   <div className="metric-value">45,234</div>
-                  <div className="metric-change positive">+12.5% vs last period</div>
+                  <div className="metric-change positive">
+                    +12.5% vs last period
+                  </div>
                 </div>
                 <div className="metric-card">
                   <div className="metric-header">
@@ -1083,7 +1256,9 @@ function AdminPanel() {
                     <span className="metric-title">Avg Watch Time</span>
                   </div>
                   <div className="metric-value">1h 23m</div>
-                  <div className="metric-change positive">+5.2% vs last period</div>
+                  <div className="metric-change positive">
+                    +5.2% vs last period
+                  </div>
                 </div>
                 <div className="metric-card">
                   <div className="metric-header">
@@ -1091,7 +1266,9 @@ function AdminPanel() {
                     <span className="metric-title">Search Queries</span>
                   </div>
                   <div className="metric-value">8,921</div>
-                  <div className="metric-change negative">-2.1% vs last period</div>
+                  <div className="metric-change negative">
+                    -2.1% vs last period
+                  </div>
                 </div>
                 <div className="metric-card">
                   <div className="metric-header">
@@ -1108,30 +1285,64 @@ function AdminPanel() {
                   <h3>📊 Daily Views Trend</h3>
                   <div className="chart-placeholder">
                     <div className="chart-bars">
-                      <div className="bar" style={{height: '60%'}} data-value="1,245">
+                      <div
+                        className="bar"
+                        style={{ height: "60%" }}
+                        data-value="1,245"
+                      >
                         <span className="bar-value">1.2K</span>
                       </div>
-                      <div className="bar" style={{height: '80%'}} data-value="1,680">
+                      <div
+                        className="bar"
+                        style={{ height: "80%" }}
+                        data-value="1,680"
+                      >
                         <span className="bar-value">1.7K</span>
                       </div>
-                      <div className="bar" style={{height: '45%'}} data-value="945">
+                      <div
+                        className="bar"
+                        style={{ height: "45%" }}
+                        data-value="945"
+                      >
                         <span className="bar-value">945</span>
                       </div>
-                      <div className="bar" style={{height: '90%'}} data-value="1,890">
+                      <div
+                        className="bar"
+                        style={{ height: "90%" }}
+                        data-value="1,890"
+                      >
                         <span className="bar-value">1.9K</span>
                       </div>
-                      <div className="bar" style={{height: '70%'}} data-value="1,470">
+                      <div
+                        className="bar"
+                        style={{ height: "70%" }}
+                        data-value="1,470"
+                      >
                         <span className="bar-value">1.5K</span>
                       </div>
-                      <div className="bar" style={{height: '85%'}} data-value="1,785">
+                      <div
+                        className="bar"
+                        style={{ height: "85%" }}
+                        data-value="1,785"
+                      >
                         <span className="bar-value">1.8K</span>
                       </div>
-                      <div className="bar" style={{height: '95%'}} data-value="1,995">
+                      <div
+                        className="bar"
+                        style={{ height: "95%" }}
+                        data-value="1,995"
+                      >
                         <span className="bar-value">2.0K</span>
                       </div>
                     </div>
                     <div className="chart-labels">
-                      <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                      <span>Mon</span>
+                      <span>Tue</span>
+                      <span>Wed</span>
+                      <span>Thu</span>
+                      <span>Fri</span>
+                      <span>Sat</span>
+                      <span>Sun</span>
                     </div>
                   </div>
                 </div>
@@ -1142,35 +1353,50 @@ function AdminPanel() {
                     <div className="genre-item">
                       <span className="genre-name">Action</span>
                       <div className="genre-bar">
-                        <div className="genre-fill action" style={{width: '85%'}}></div>
+                        <div
+                          className="genre-fill action"
+                          style={{ width: "85%" }}
+                        ></div>
                       </div>
                       <span className="genre-percent">85%</span>
                     </div>
                     <div className="genre-item">
                       <span className="genre-name">Comedy</span>
                       <div className="genre-bar">
-                        <div className="genre-fill comedy" style={{width: '72%'}}></div>
+                        <div
+                          className="genre-fill comedy"
+                          style={{ width: "72%" }}
+                        ></div>
                       </div>
                       <span className="genre-percent">72%</span>
                     </div>
                     <div className="genre-item">
                       <span className="genre-name">Drama</span>
                       <div className="genre-bar">
-                        <div className="genre-fill drama" style={{width: '68%'}}></div>
+                        <div
+                          className="genre-fill drama"
+                          style={{ width: "68%" }}
+                        ></div>
                       </div>
                       <span className="genre-percent">68%</span>
                     </div>
                     <div className="genre-item">
                       <span className="genre-name">Horror</span>
                       <div className="genre-bar">
-                        <div className="genre-fill horror" style={{width: '45%'}}></div>
+                        <div
+                          className="genre-fill horror"
+                          style={{ width: "45%" }}
+                        ></div>
                       </div>
                       <span className="genre-percent">45%</span>
                     </div>
                     <div className="genre-item">
                       <span className="genre-name">Sci-Fi</span>
                       <div className="genre-bar">
-                        <div className="genre-fill scifi" style={{width: '38%'}}></div>
+                        <div
+                          className="genre-fill scifi"
+                          style={{ width: "38%" }}
+                        ></div>
                       </div>
                       <span className="genre-percent">38%</span>
                     </div>
@@ -1182,10 +1408,19 @@ function AdminPanel() {
                   <div className="time-chart">
                     <div className="time-bars">
                       {[...Array(24)].map((_, i) => {
-                        const heights = [20, 15, 10, 8, 5, 3, 8, 15, 25, 35, 30, 40, 45, 50, 55, 60, 70, 85, 95, 90, 75, 60, 45, 30];
+                        const heights = [
+                          20, 15, 10, 8, 5, 3, 8, 15, 25, 35, 30, 40, 45, 50,
+                          55, 60, 70, 85, 95, 90, 75, 60, 45, 30,
+                        ];
                         return (
-                          <div key={i} className="time-bar" style={{height: `${heights[i]}%`}}>
-                            <span className="time-tooltip">{i}:00 - {heights[i]}%</span>
+                          <div
+                            key={i}
+                            className="time-bar"
+                            style={{ height: `${heights[i]}%` }}
+                          >
+                            <span className="time-tooltip">
+                              {i}:00 - {heights[i]}%
+                            </span>
                           </div>
                         );
                       })}
@@ -1209,7 +1444,10 @@ function AdminPanel() {
                         <span className="country-name">United States</span>
                       </div>
                       <div className="geo-bar">
-                        <div className="geo-fill" style={{width: '45%'}}></div>
+                        <div
+                          className="geo-fill"
+                          style={{ width: "45%" }}
+                        ></div>
                       </div>
                       <span className="geo-percent">45%</span>
                     </div>
@@ -1219,7 +1457,10 @@ function AdminPanel() {
                         <span className="country-name">India</span>
                       </div>
                       <div className="geo-bar">
-                        <div className="geo-fill" style={{width: '28%'}}></div>
+                        <div
+                          className="geo-fill"
+                          style={{ width: "28%" }}
+                        ></div>
                       </div>
                       <span className="geo-percent">28%</span>
                     </div>
@@ -1229,7 +1470,10 @@ function AdminPanel() {
                         <span className="country-name">United Kingdom</span>
                       </div>
                       <div className="geo-bar">
-                        <div className="geo-fill" style={{width: '12%'}}></div>
+                        <div
+                          className="geo-fill"
+                          style={{ width: "12%" }}
+                        ></div>
                       </div>
                       <span className="geo-percent">12%</span>
                     </div>
@@ -1239,7 +1483,7 @@ function AdminPanel() {
                         <span className="country-name">Canada</span>
                       </div>
                       <div className="geo-bar">
-                        <div className="geo-fill" style={{width: '8%'}}></div>
+                        <div className="geo-fill" style={{ width: "8%" }}></div>
                       </div>
                       <span className="geo-percent">8%</span>
                     </div>
@@ -1249,7 +1493,7 @@ function AdminPanel() {
                         <span className="country-name">Australia</span>
                       </div>
                       <div className="geo-bar">
-                        <div className="geo-fill" style={{width: '7%'}}></div>
+                        <div className="geo-fill" style={{ width: "7%" }}></div>
                       </div>
                       <span className="geo-percent">7%</span>
                     </div>
@@ -1314,15 +1558,17 @@ function AdminPanel() {
                       />
                       <div className="pin-dots">
                         {[...Array(4)].map((_, i) => (
-                          <div 
-                            key={i} 
-                            className={`pin-dot ${i < adminPinInput.length ? 'filled' : ''}`}
+                          <div
+                            key={i}
+                            className={`pin-dot ${
+                              i < adminPinInput.length ? "filled" : ""
+                            }`}
                           />
                         ))}
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="form-group">
                     <label>New Admin PIN</label>
                     <div className="pin-input-container">
@@ -1337,15 +1583,17 @@ function AdminPanel() {
                       />
                       <div className="pin-dots">
                         {[...Array(4)].map((_, i) => (
-                          <div 
-                            key={i} 
-                            className={`pin-dot ${i < newAdminPin.length ? 'filled' : ''}`}
+                          <div
+                            key={i}
+                            className={`pin-dot ${
+                              i < newAdminPin.length ? "filled" : ""
+                            }`}
                           />
                         ))}
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="form-group">
                     <label>Confirm New PIN</label>
                     <div className="pin-input-container">
@@ -1353,26 +1601,35 @@ function AdminPanel() {
                         type="password"
                         maxLength={4}
                         value={confirmAdminPin}
-                        onChange={(e) => handleInputChange(e, setConfirmAdminPin)}
+                        onChange={(e) =>
+                          handleInputChange(e, setConfirmAdminPin)
+                        }
                         placeholder="Confirm new PIN"
                         className="pin-input"
                         autoComplete="off"
                       />
                       <div className="pin-dots">
                         {[...Array(4)].map((_, i) => (
-                          <div 
-                            key={i} 
-                            className={`pin-dot ${i < confirmAdminPin.length ? 'filled' : ''}`}
+                          <div
+                            key={i}
+                            className={`pin-dot ${
+                              i < confirmAdminPin.length ? "filled" : ""
+                            }`}
                           />
                         ))}
                       </div>
                     </div>
                   </div>
-                  
-                  <button 
-                    onClick={handleChangeAdminPin} 
+
+                  <button
+                    onClick={handleChangeAdminPin}
                     className="admin-button primary"
-                    disabled={isLoading || !adminPinInput || !newAdminPin || !confirmAdminPin}
+                    disabled={
+                      isLoading ||
+                      !adminPinInput ||
+                      !newAdminPin ||
+                      !confirmAdminPin
+                    }
                   >
                     {isLoading ? "Updating..." : "Change Admin PIN"}
                   </button>
@@ -1391,7 +1648,7 @@ function AdminPanel() {
                       autoComplete="off"
                     />
                   </div>
-                  
+
                   <div className="form-group">
                     <label>Section PIN</label>
                     <div className="pin-input-container">
@@ -1399,32 +1656,38 @@ function AdminPanel() {
                         type="password"
                         maxLength={4}
                         value={sectionPinValue}
-                        onChange={(e) => handleInputChange(e, setSectionPinValue)}
+                        onChange={(e) =>
+                          handleInputChange(e, setSectionPinValue)
+                        }
                         placeholder="Enter 4-digit PIN"
                         className="pin-input"
                         autoComplete="off"
                       />
                       <div className="pin-dots">
                         {[...Array(4)].map((_, i) => (
-                          <div 
-                            key={i} 
-                            className={`pin-dot ${i < sectionPinValue.length ? 'filled' : ''}`}
+                          <div
+                            key={i}
+                            className={`pin-dot ${
+                              i < sectionPinValue.length ? "filled" : ""
+                            }`}
                           />
                         ))}
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="button-group">
-                    <button 
-                      onClick={handleSetSectionPin} 
+                    <button
+                      onClick={handleSetSectionPin}
                       className="admin-button success"
-                      disabled={isLoading || !sectionName.trim() || !sectionPinValue}
+                      disabled={
+                        isLoading || !sectionName.trim() || !sectionPinValue
+                      }
                     >
                       {isLoading ? "Setting..." : "Set Section PIN"}
                     </button>
-                    <button 
-                      onClick={handleResetSectionPin} 
+                    <button
+                      onClick={handleResetSectionPin}
                       className="admin-button warning"
                       disabled={isLoading || !sectionName.trim()}
                     >
@@ -1438,22 +1701,28 @@ function AdminPanel() {
                 <h3>📋 Current Section PINs</h3>
                 <div className="pins-grid">
                   {Object.keys(getAllSectionPins()).length > 0 ? (
-                    Object.entries(getAllSectionPins()).map(([section, pin]) => (
-                      <div key={section} className="pin-item">
-                        <div className="pin-item-header">
-                          <span className="section-name">{section}</span>
-                          <span className="pin-status">Protected</span>
+                    Object.entries(getAllSectionPins()).map(
+                      ([section, pin]) => (
+                        <div key={section} className="pin-item">
+                          <div className="pin-item-header">
+                            <span className="section-name">{section}</span>
+                            <span className="pin-status">Protected</span>
+                          </div>
+                          <div className="pin-display">
+                            <span className="pin-dots-display">
+                              {"•".repeat(pin.length)}
+                            </span>
+                          </div>
                         </div>
-                        <div className="pin-display">
-                          <span className="pin-dots-display">{'•'.repeat(pin.length)}</span>
-                        </div>
-                      </div>
-                    ))
+                      )
+                    )
                   ) : (
                     <div className="no-pins">
                       <div className="no-pins-icon">🔒</div>
                       <p>No section PINs configured</p>
-                      <p className="no-pins-hint">Add PINs to protect sensitive sections</p>
+                      <p className="no-pins-hint">
+                        Add PINs to protect sensitive sections
+                      </p>
                     </div>
                   )}
                 </div>
@@ -1466,7 +1735,7 @@ function AdminPanel() {
               <div className="autolock-grid">
                 <div className="autolock-card">
                   <h3>⚙️ Auto-Lock Settings</h3>
-                  
+
                   <div className="form-group">
                     <label className="toggle-label">
                       <div className="toggle-switch">
@@ -1484,7 +1753,7 @@ function AdminPanel() {
                       Automatically lock sections after inactivity
                     </p>
                   </div>
-                  
+
                   <div className="form-group">
                     <label>Inactivity Timeout (minutes)</label>
                     <input
@@ -1492,7 +1761,9 @@ function AdminPanel() {
                       min="1"
                       max="60"
                       value={inactivityTimeout}
-                      onChange={(e) => setInactivityTimeout(parseInt(e.target.value) || 5)}
+                      onChange={(e) =>
+                        setInactivityTimeout(parseInt(e.target.value) || 5)
+                      }
                       className="number-input"
                       disabled={!autoLockEnabled}
                     />
@@ -1500,7 +1771,7 @@ function AdminPanel() {
                       Time before section auto-locks due to inactivity
                     </p>
                   </div>
-                  
+
                   <div className="form-group">
                     <label>Session Timeout (minutes)</label>
                     <input
@@ -1508,7 +1779,9 @@ function AdminPanel() {
                       min="5"
                       max="480"
                       value={sessionTimeout}
-                      onChange={(e) => setSessionTimeout(parseInt(e.target.value) || 30)}
+                      onChange={(e) =>
+                        setSessionTimeout(parseInt(e.target.value) || 30)
+                      }
                       className="number-input"
                       disabled={!autoLockEnabled}
                     />
@@ -1516,9 +1789,9 @@ function AdminPanel() {
                       Maximum session duration before auto-lock
                     </p>
                   </div>
-                  
-                  <button 
-                    onClick={handleAutoLockSettingsChange} 
+
+                  <button
+                    onClick={handleAutoLockSettingsChange}
                     className="admin-button primary"
                     disabled={isLoading}
                   >
@@ -1533,12 +1806,16 @@ function AdminPanel() {
                       <div className="info-icon">🔒</div>
                       <div className="info-content">
                         <strong>Status</strong>
-                        <span className={`status-badge ${autoLockEnabled ? 'enabled' : 'disabled'}`}>
-                          {autoLockEnabled ? 'Enabled' : 'Disabled'}
+                        <span
+                          className={`status-badge ${
+                            autoLockEnabled ? "enabled" : "disabled"
+                          }`}
+                        >
+                          {autoLockEnabled ? "Enabled" : "Disabled"}
                         </span>
                       </div>
                     </div>
-                    
+
                     <div className="info-item">
                       <div className="info-icon">⏱️</div>
                       <div className="info-content">
@@ -1546,7 +1823,7 @@ function AdminPanel() {
                         <span>{inactivityTimeout} minutes</span>
                       </div>
                     </div>
-                    
+
                     <div className="info-item">
                       <div className="info-icon">⏰</div>
                       <div className="info-content">
@@ -1554,7 +1831,7 @@ function AdminPanel() {
                         <span>{sessionTimeout} minutes</span>
                       </div>
                     </div>
-                    
+
                     <div className="info-item">
                       <div className="info-icon">⚠️</div>
                       <div className="info-content">
@@ -1573,7 +1850,10 @@ function AdminPanel() {
               <div className="content-header">
                 <h2>💾 {t("backup_restore")}</h2>
                 <div className="header-actions">
-                  <button className="backup-now-btn" onClick={() => handleCreateBackup()}>
+                  <button
+                    className="backup-now-btn"
+                    onClick={() => handleCreateBackup()}
+                  >
                     <span className="btn-icon">⬇️</span>
                     {t("create_backup")}
                   </button>
@@ -1626,7 +1906,10 @@ function AdminPanel() {
                       <span className="action-icon">⬇️</span>
                       <h3>Create Backup</h3>
                     </div>
-                    <p className="action-description">Create a complete backup of your movie database, user data, and system settings.</p>
+                    <p className="action-description">
+                      Create a complete backup of your movie database, user
+                      data, and system settings.
+                    </p>
                     <div className="backup-options">
                       <label className="backup-option">
                         <input type="checkbox" defaultChecked />
@@ -1645,12 +1928,19 @@ function AdminPanel() {
                         <span>Media Files</span>
                       </label>
                     </div>
-                    <button className="action-btn primary" onClick={() => handleCreateBackup({
-                      includeMovieDatabase: true,
-                      includeUserData: true,
-                      includeSystemSettings: true,
-                      includeMediaFiles: false
-                    })}>{t("create_full_backup")}</button>
+                    <button
+                      className="action-btn primary"
+                      onClick={() =>
+                        handleCreateBackup({
+                          includeMovieDatabase: true,
+                          includeUserData: true,
+                          includeSystemSettings: true,
+                          includeMediaFiles: false,
+                        })
+                      }
+                    >
+                      {t("create_full_backup")}
+                    </button>
                   </div>
 
                   <div className="backup-action-card">
@@ -1658,7 +1948,10 @@ function AdminPanel() {
                       <span className="action-icon">⬆️</span>
                       <h3>Restore Data</h3>
                     </div>
-                    <p className="action-description">Restore your system from a previous backup. This will overwrite current data.</p>
+                    <p className="action-description">
+                      Restore your system from a previous backup. This will
+                      overwrite current data.
+                    </p>
                     <div className="restore-options">
                       <select className="restore-select">
                         <option>Select backup to restore...</option>
@@ -1667,7 +1960,9 @@ function AdminPanel() {
                         <option>Database Only - Dec 13, 2024 (1.8GB)</option>
                       </select>
                     </div>
-                    <button className="action-btn warning">Restore from Backup</button>
+                    <button className="action-btn warning">
+                      Restore from Backup
+                    </button>
                   </div>
 
                   <div className="backup-action-card">
@@ -1675,7 +1970,10 @@ function AdminPanel() {
                       <span className="action-icon">📤</span>
                       <h3>Export Data</h3>
                     </div>
-                    <p className="action-description">Export specific data sets in various formats for analysis or migration.</p>
+                    <p className="action-description">
+                      Export specific data sets in various formats for analysis
+                      or migration.
+                    </p>
                     <div className="export-options">
                       <select className="export-format">
                         <option>JSON Format</option>
@@ -1690,7 +1988,12 @@ function AdminPanel() {
                         <option>Analytics Data</option>
                       </select>
                     </div>
-                    <button className="action-btn success" onClick={() => handleExportData('json')}>{t("export_data")}</button>
+                    <button
+                      className="action-btn success"
+                      onClick={() => handleExportData("json")}
+                    >
+                      {t("export_data")}
+                    </button>
                   </div>
 
                   <div className="backup-action-card">
@@ -1698,7 +2001,10 @@ function AdminPanel() {
                       <span className="action-icon">⚙️</span>
                       <h3>Backup Settings</h3>
                     </div>
-                    <p className="action-description">Configure automatic backup schedules and retention policies.</p>
+                    <p className="action-description">
+                      Configure automatic backup schedules and retention
+                      policies.
+                    </p>
                     <div className="backup-settings">
                       <label className="setting-item">
                         <span>Auto Backup</span>
@@ -1735,12 +2041,18 @@ function AdminPanel() {
                   <div className="history-body">
                     <div className="history-row">
                       <div className="backup-info">
-                        <span className="backup-date">Dec 15, 2024 - 2:00 AM</span>
-                        <span className="backup-desc">Automatic daily backup</span>
+                        <span className="backup-date">
+                          Dec 15, 2024 - 2:00 AM
+                        </span>
+                        <span className="backup-desc">
+                          Automatic daily backup
+                        </span>
                       </div>
                       <span className="backup-type">Full Backup</span>
                       <span className="backup-size">2.4 GB</span>
-                      <span className="backup-status success">✅ Completed</span>
+                      <span className="backup-status success">
+                        ✅ Completed
+                      </span>
                       <div className="backup-actions">
                         <button className="history-btn download">⬇️</button>
                         <button className="history-btn restore">🔄</button>
@@ -1749,12 +2061,18 @@ function AdminPanel() {
                     </div>
                     <div className="history-row">
                       <div className="backup-info">
-                        <span className="backup-date">Dec 14, 2024 - 2:00 AM</span>
-                        <span className="backup-desc">Automatic daily backup</span>
+                        <span className="backup-date">
+                          Dec 14, 2024 - 2:00 AM
+                        </span>
+                        <span className="backup-desc">
+                          Automatic daily backup
+                        </span>
                       </div>
                       <span className="backup-type">Full Backup</span>
                       <span className="backup-size">2.3 GB</span>
-                      <span className="backup-status success">✅ Completed</span>
+                      <span className="backup-status success">
+                        ✅ Completed
+                      </span>
                       <div className="backup-actions">
                         <button className="history-btn download">⬇️</button>
                         <button className="history-btn restore">🔄</button>
@@ -1763,12 +2081,18 @@ function AdminPanel() {
                     </div>
                     <div className="history-row">
                       <div className="backup-info">
-                        <span className="backup-date">Dec 13, 2024 - 11:30 PM</span>
-                        <span className="backup-desc">Manual backup before update</span>
+                        <span className="backup-date">
+                          Dec 13, 2024 - 11:30 PM
+                        </span>
+                        <span className="backup-desc">
+                          Manual backup before update
+                        </span>
                       </div>
                       <span className="backup-type">Database Only</span>
                       <span className="backup-size">1.8 GB</span>
-                      <span className="backup-status success">✅ Completed</span>
+                      <span className="backup-status success">
+                        ✅ Completed
+                      </span>
                       <div className="backup-actions">
                         <button className="history-btn download">⬇️</button>
                         <button className="history-btn restore">🔄</button>
@@ -1789,34 +2113,46 @@ function AdminPanel() {
                       <div className="storage-item">
                         <span className="storage-label">Movie Database</span>
                         <div className="storage-bar">
-                          <div className="storage-fill movies" style={{width: '65%'}}></div>
+                          <div
+                            className="storage-fill movies"
+                            style={{ width: "65%" }}
+                          ></div>
                         </div>
                         <span className="storage-value">1.56 GB (65%)</span>
                       </div>
                       <div className="storage-item">
                         <span className="storage-label">User Data</span>
                         <div className="storage-bar">
-                          <div className="storage-fill users" style={{width: '15%'}}></div>
+                          <div
+                            className="storage-fill users"
+                            style={{ width: "15%" }}
+                          ></div>
                         </div>
                         <span className="storage-value">360 MB (15%)</span>
                       </div>
                       <div className="storage-item">
                         <span className="storage-label">System Files</span>
                         <div className="storage-bar">
-                          <div className="storage-fill system" style={{width: '12%'}}></div>
+                          <div
+                            className="storage-fill system"
+                            style={{ width: "12%" }}
+                          ></div>
                         </div>
                         <span className="storage-value">288 MB (12%)</span>
                       </div>
                       <div className="storage-item">
                         <span className="storage-label">Backups</span>
                         <div className="storage-bar">
-                          <div className="storage-fill backups" style={{width: '8%'}}></div>
+                          <div
+                            className="storage-fill backups"
+                            style={{ width: "8%" }}
+                          ></div>
                         </div>
                         <span className="storage-value">192 MB (8%)</span>
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="storage-recommendations">
                     <h4>💡 Recommendations</h4>
                     <div className="recommendation-list">
@@ -1824,7 +2160,9 @@ function AdminPanel() {
                         <span className="rec-icon">🗑️</span>
                         <div className="rec-content">
                           <span className="rec-title">Clean Old Backups</span>
-                          <span className="rec-desc">Remove backups older than 30 days to free up 1.2GB</span>
+                          <span className="rec-desc">
+                            Remove backups older than 30 days to free up 1.2GB
+                          </span>
                         </div>
                         <button className="rec-action">Clean Now</button>
                       </div>
@@ -1832,7 +2170,9 @@ function AdminPanel() {
                         <span className="rec-icon">📦</span>
                         <div className="rec-content">
                           <span className="rec-title">Compress Database</span>
-                          <span className="rec-desc">Optimize database to reduce size by ~15%</span>
+                          <span className="rec-desc">
+                            Optimize database to reduce size by ~15%
+                          </span>
                         </div>
                         <button className="rec-action">Optimize</button>
                       </div>
@@ -1840,7 +2180,9 @@ function AdminPanel() {
                         <span className="rec-icon">☁️</span>
                         <div className="rec-content">
                           <span className="rec-title">Cloud Backup</span>
-                          <span className="rec-desc">Enable cloud backup for better redundancy</span>
+                          <span className="rec-desc">
+                            Enable cloud backup for better redundancy
+                          </span>
                         </div>
                         <button className="rec-action">Enable</button>
                       </div>
@@ -1861,30 +2203,42 @@ function AdminPanel() {
                       <div className="info-icon">👑</div>
                       <div className="info-content">
                         <strong>Default Admin PIN</strong>
-                        <span className="pin-display">{systemInfo.defaultAdminPin}</span>
+                        <span className="pin-display">
+                          {systemInfo.defaultAdminPin}
+                        </span>
                       </div>
                     </div>
-                    
+
                     <div className="system-info-item">
                       <div className="info-icon">🔐</div>
                       <div className="info-content">
                         <strong>Current Admin PIN</strong>
-                        <span className={`pin-display ${systemInfo.currentAdminPin === systemInfo.defaultAdminPin ? 'default' : 'custom'}`}>
-                          {systemInfo.currentAdminPin === systemInfo.defaultAdminPin ? 
-                            `${systemInfo.currentAdminPin} (Default)` : 
-                            `${systemInfo.currentAdminPin} (Custom)`}
+                        <span
+                          className={`pin-display ${
+                            systemInfo.currentAdminPin ===
+                            systemInfo.defaultAdminPin
+                              ? "default"
+                              : "custom"
+                          }`}
+                        >
+                          {systemInfo.currentAdminPin ===
+                          systemInfo.defaultAdminPin
+                            ? `${systemInfo.currentAdminPin} (Default)`
+                            : `${systemInfo.currentAdminPin} (Custom)`}
                         </span>
                       </div>
                     </div>
-                    
+
                     <div className="system-info-item">
                       <div className="info-icon">👤</div>
                       <div className="info-content">
                         <strong>Current User Role</strong>
-                        <span className="role-badge">{systemInfo.currentUserRole}</span>
+                        <span className="role-badge">
+                          {systemInfo.currentUserRole}
+                        </span>
                       </div>
                     </div>
-                    
+
                     <div className="system-info-item">
                       <div className="info-icon">🔒</div>
                       <div className="info-content">
@@ -1892,13 +2246,17 @@ function AdminPanel() {
                         <span>{systemInfo.sectionCount}</span>
                       </div>
                     </div>
-                    
+
                     <div className="system-info-item">
                       <div className="info-icon">⏰</div>
                       <div className="info-content">
                         <strong>Auto-Lock Status</strong>
-                        <span className={`status-badge ${systemInfo.autoLockEnabled ? 'enabled' : 'disabled'}`}>
-                          {systemInfo.autoLockEnabled ? 'Enabled' : 'Disabled'}
+                        <span
+                          className={`status-badge ${
+                            systemInfo.autoLockEnabled ? "enabled" : "disabled"
+                          }`}
+                        >
+                          {systemInfo.autoLockEnabled ? "Enabled" : "Disabled"}
                         </span>
                       </div>
                     </div>
@@ -1907,16 +2265,22 @@ function AdminPanel() {
 
                 <div className="system-card">
                   <h3>🔄 Admin PIN Reset</h3>
-                  <p>Reset the admin PIN back to the default value ({systemInfo.defaultAdminPin})</p>
+                  <p>
+                    Reset the admin PIN back to the default value (
+                    {systemInfo.defaultAdminPin})
+                  </p>
                   <div className="warning-box">
                     <div className="warning-icon">⚠️</div>
                     <div className="warning-content">
                       <strong>Warning</strong>
-                      <p>This will reset the admin PIN to the default value. Use this if you've forgotten your custom PIN.</p>
+                      <p>
+                        This will reset the admin PIN to the default value. Use
+                        this if you've forgotten your custom PIN.
+                      </p>
                     </div>
                   </div>
-                  <button 
-                    onClick={handleResetAdminPin} 
+                  <button
+                    onClick={handleResetAdminPin}
                     className="admin-button warning"
                     disabled={isLoading}
                   >
@@ -1928,10 +2292,10 @@ function AdminPanel() {
           )}
         </div>
       </div>
-      
+
       {/* Toast Notifications */}
       {toastNotification && (
-        <ToastNotification 
+        <ToastNotification
           notification={toastNotification}
           onClose={() => setToastNotification(null)}
         />
@@ -1941,4 +2305,3 @@ function AdminPanel() {
 }
 
 export default AdminPanel;
-

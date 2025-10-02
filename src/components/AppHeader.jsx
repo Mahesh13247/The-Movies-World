@@ -36,7 +36,6 @@ const AppHeader = ({
   setSearchInput,
   searchInputRef,
   suggestions,
-  setSuggestions,
   showSuggestions,
   setShowSuggestions,
   searchMovie,
@@ -44,8 +43,6 @@ const AppHeader = ({
   theme,
   toggleTheme,
   fetchRandomMovie,
-  handleAvatarUpload,
-  handleProfileSave,
 }) => {
   // Avatar cropper state
   const [cropModalOpen, setCropModalOpen] = useState(false);
@@ -171,32 +168,53 @@ const AppHeader = ({
             >
               <FaBell />
               {unreadCount > 0 && (
-                <span className="notif-dot" aria-label={`${unreadCount} new notifications`}>{unreadCount}</span>
+                <span
+                  className="notif-dot"
+                  aria-label={`${unreadCount} new notifications`}
+                >
+                  {unreadCount}
+                </span>
               )}
             </button>
 
             {notifOpen && (
-              <div ref={notifRef} className="notif-menu" role="menu" aria-label="Notifications">
+              <div
+                ref={notifRef}
+                className="notif-menu"
+                role="menu"
+                aria-label="Notifications"
+              >
                 <div className="notif-header">
                   <span>Notifications</span>
                   <button
                     className="mark-all"
-                    onClick={() => setNotifications((list) => list.map((n) => ({ ...n, unread: false })))}
+                    onClick={() =>
+                      setNotifications((list) =>
+                        list.map((n) => ({ ...n, unread: false }))
+                      )
+                    }
                   >
                     Mark all read
                   </button>
                 </div>
                 <ul className="notif-list">
-                  {notifications.length === 0 && <li className="notif-empty">No notifications</li>}
+                  {notifications.length === 0 && (
+                    <li className="notif-empty">No notifications</li>
+                  )}
                   {notifications.map((n) => (
-                    <li key={n.id} className={`notif-item ${n.unread ? "unread" : ""}`}>
+                    <li
+                      key={n.id}
+                      className={`notif-item ${n.unread ? "unread" : ""}`}
+                    >
                       <span>{n.title}</span>
                       {n.unread && (
                         <button
                           className="notif-mark"
                           onClick={() =>
                             setNotifications((list) =>
-                              list.map((x) => (x.id === n.id ? { ...x, unread: false } : x))
+                              list.map((x) =>
+                                x.id === n.id ? { ...x, unread: false } : x
+                              )
                             )
                           }
                           aria-label="Mark as read"
@@ -218,7 +236,11 @@ const AppHeader = ({
             >
               <span className={`avatar-wrap ${presence}`}>
                 {profile.avatar ? (
-                  <img src={profile.avatar} alt="profile" className="badge-avatar" />
+                  <img
+                    src={profile.avatar}
+                    alt="profile"
+                    className="badge-avatar"
+                  />
                 ) : (
                   <span className="badge-avatar placeholder">🙂</span>
                 )}
@@ -227,7 +249,8 @@ const AppHeader = ({
               <span className="badge-info">
                 <span className="badge-name">{profile.name || "Guest"}</span>
                 <span className="badge-sub">
-                  <FaCheckCircle className="verified" aria-hidden="true" /> Verified
+                  <FaCheckCircle className="verified" aria-hidden="true" />{" "}
+                  Verified
                 </span>
               </span>
               <FaChevronDown className={`chev ${menuOpen ? "open" : ""}`} />
@@ -256,7 +279,9 @@ const AppHeader = ({
                     ].map(([key, label]) => (
                       <button
                         key={key}
-                        className={`presence-btn ${presence === key ? "active" : ""} ${key}`}
+                        className={`presence-btn ${
+                          presence === key ? "active" : ""
+                        } ${key}`}
                         onClick={() => setPresence(key)}
                         aria-pressed={presence === key}
                       >
@@ -288,10 +313,13 @@ const AppHeader = ({
                         className={`theme-btn ${label.toLowerCase()}`}
                         onClick={() => {
                           if (mode === "system") {
-                            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-                            setTheme(prefersDark ? "dark" : "light");
+                            const prefersDark =
+                              window.matchMedia &&
+                              window.matchMedia("(prefers-color-scheme: dark)")
+                                .matches;
+                            toggleTheme(prefersDark ? "dark" : "light");
                           } else {
-                            setTheme(mode);
+                            toggleTheme(mode);
                           }
                           setMenuOpen(false);
                         }}
@@ -321,7 +349,9 @@ const AppHeader = ({
                   className="menu-item"
                   onClick={async () => {
                     try {
-                      const url = `${window.location.origin}/?user=${encodeURIComponent(profile.name || "guest")}`;
+                      const url = `${
+                        window.location.origin
+                      }/?user=${encodeURIComponent(profile.name || "guest")}`;
                       await navigator.clipboard.writeText(url);
                       toast.success("Profile link copied!");
                     } catch {
@@ -377,7 +407,11 @@ const AppHeader = ({
               onFocus={() => setShowSuggestions(suggestions.length > 0)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
             />
-            <button className="btn-primary soft" onClick={searchMovie} aria-label={t("search")}>
+            <button
+              className="btn-primary soft"
+              onClick={searchMovie}
+              aria-label={t("search")}
+            >
               🔎 {t("search")}
             </button>
             <select
@@ -479,7 +513,9 @@ const AppHeader = ({
                   setProfile(updated);
                   try {
                     localStorage.setItem("profile", JSON.stringify(updated));
-                  } catch {}
+                  } catch {
+                    // Ignore localStorage errors
+                  }
                   setEditProfile(false);
                   // reflect the latest name in header badge immediately
                   setShowProfile(false);

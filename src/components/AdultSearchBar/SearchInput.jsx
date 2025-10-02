@@ -26,7 +26,8 @@ const SearchInput = ({
   const [showClearButton, setShowClearButton] = useState(false);
   const [activeSuggestion, setActiveSuggestion] = useState(-1);
   const [isFocused, setIsFocused] = useState(false);
-  const inputRef = externalInputRef || useRef(null);
+  const internalInputRef = useRef(null);
+  const inputRef = externalInputRef || internalInputRef;
   const recognitionRef = useRef(null);
 
   // Initialize speech recognition

@@ -1,25 +1,26 @@
 import React, { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import "./PinLock.css";
-import { 
-  isAdmin, 
-  isUser, 
-  getSectionPin, 
-  setSectionPin, 
+import {
+  isAdmin,
+  getSectionPin,
+  setSectionPin,
   resetSectionPin,
   switchToAdmin,
   switchToUser,
-  verifyAdminPin,
   startSession,
   updateActivity,
-  isSessionValid,
   checkAndAutoLock,
   getRemainingSessionTime,
   formatTimeRemaining,
-  getAutoLockSettings
+  getAutoLockSettings,
 } from "../utils/userRoles";
 
-const PinLock = ({ children, sectionName = "Protected Section", isVideoPlaying = false }) => {
+const PinLock = ({
+  children,
+  sectionName = "Protected Section",
+  isVideoPlaying = false,
+}) => {
   const [pin, setPin] = useState(() => getSectionPin(sectionName));
   const [pinInput, setPinInput] = useState("");
   const [pinSet, setPinSet] = useState(() => !!getSectionPin(sectionName));
@@ -30,14 +31,16 @@ const PinLock = ({ children, sectionName = "Protected Section", isVideoPlaying =
   const [showAdminSwitch, setShowAdminSwitch] = useState(false);
   const [adminPinInput, setAdminPinInput] = useState("");
   const [currentUserRole, setCurrentUserRole] = useState(() => {
-    const role = localStorage.getItem('userRole') || 'user';
+    const role = localStorage.getItem("userRole") || "user";
     return role;
   });
   const [timeRemaining, setTimeRemaining] = useState(0);
-  const [autoLockSettings, setAutoLockSettings] = useState(() => getAutoLockSettings());
+  const [autoLockSettings, setAutoLockSettings] = useState(() =>
+    getAutoLockSettings()
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  
+
   const activityTimerRef = useRef(null);
   const countdownTimerRef = useRef(null);
   const warningTimerRef = useRef(null);
@@ -47,11 +50,11 @@ const PinLock = ({ children, sectionName = "Protected Section", isVideoPlaying =
   // Update current user role when it changes
   useEffect(() => {
     const handleStorageChange = () => {
-      setCurrentUserRole(localStorage.getItem('userRole') || 'user');
+      setCurrentUserRole(localStorage.getItem("userRole") || "user");
     };
-    
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   // Auto-lock functionality
@@ -59,7 +62,7 @@ const PinLock = ({ children, sectionName = "Protected Section", isVideoPlaying =
     if (pinUnlocked && autoLockSettings.enabled && !isVideoPlaying) {
       // Start session when unlocked
       startSession(sectionName);
-      
+
       // Set up activity tracking
       const handleActivity = () => {
         updateActivity(sectionName);
@@ -69,16 +72,25 @@ const PinLock = ({ children, sectionName = "Protected Section", isVideoPlaying =
       };
 
       // Add activity listeners with passive option for better performance
-      const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
-      events.forEach(event => {
-        document.addEventListener(event, handleActivity, { passive: true, capture: true });
+      const events = [
+        "mousedown",
+        "mousemove",
+        "keypress",
+        "scroll",
+        "touchstart",
+      ];
+      events.forEach((event) => {
+        document.addEventListener(event, handleActivity, {
+          passive: true,
+          capture: true,
+        });
       });
 
       // Set up countdown timer
       const updateCountdown = () => {
         const remaining = getRemainingSessionTime(sectionName);
         setTimeRemaining(remaining);
-        
+
         // Auto-lock when time expires
         if (remaining <= 0) {
           handleAutoLock();
@@ -96,8 +108,11 @@ const PinLock = ({ children, sectionName = "Protected Section", isVideoPlaying =
       }, 5000); // Check every 5 seconds
 
       return () => {
-        events.forEach(event => {
-          document.removeEventListener(event, handleActivity, { passive: true, capture: true });
+        events.forEach((event) => {
+          document.removeEventListener(event, handleActivity, {
+            passive: true,
+            capture: true,
+          });
         });
         if (countdownTimerRef.current) {
           clearInterval(countdownTimerRef.current);
@@ -117,9 +132,9 @@ const PinLock = ({ children, sectionName = "Protected Section", isVideoPlaying =
     const handleSettingsChange = () => {
       setAutoLockSettings(getAutoLockSettings());
     };
-    
-    window.addEventListener('storage', handleSettingsChange);
-    return () => window.removeEventListener('storage', handleSettingsChange);
+
+    window.addEventListener("storage", handleSettingsChange);
+    return () => window.removeEventListener("storage", handleSettingsChange);
   }, []);
 
   // Focus management for accessibility
@@ -155,17 +170,17 @@ const PinLock = ({ children, sectionName = "Protected Section", isVideoPlaying =
       try {
         const result = setSectionPin(sectionName, pinInput);
         if (result.success) {
-      setPin(pinInput);
-      setPinSet(true);
-      setPinUnlocked(true);
-      localStorage.setItem(`${sectionName}PinUnlocked`, "1");
+          setPin(pinInput);
+          setPinSet(true);
+          setPinUnlocked(true);
+          localStorage.setItem(`${sectionName}PinUnlocked`, "1");
           toast.success(result.message);
-      clearPinInput();
+          clearPinInput();
         } else {
           toast.error(result.message);
           setPinInput("");
         }
-      } catch (error) {
+      } catch {
         toast.error("An error occurred while setting the PIN");
         setPinInput("");
       } finally {
@@ -181,11 +196,11 @@ const PinLock = ({ children, sectionName = "Protected Section", isVideoPlaying =
     if (pinInput === pin) {
       setIsLoading(true);
       try {
-      setPinUnlocked(true);
-      localStorage.setItem(`${sectionName}PinUnlocked`, "1");
-      toast.success("Access granted!");
-      clearPinInput();
-      } catch (error) {
+        setPinUnlocked(true);
+        localStorage.setItem(`${sectionName}PinUnlocked`, "1");
+        toast.success("Access granted!");
+        clearPinInput();
+      } catch {
         toast.error("An error occurred while unlocking");
         setPinInput("");
       } finally {
@@ -223,17 +238,17 @@ const PinLock = ({ children, sectionName = "Protected Section", isVideoPlaying =
     try {
       const result = resetSectionPin(sectionName);
       if (result.success) {
-      setPin("");
-      setPinSet(false);
-      setPinUnlocked(false);
-      setShowResetConfirmation(false);
+        setPin("");
+        setPinSet(false);
+        setPinUnlocked(false);
+        setShowResetConfirmation(false);
         toast.info(result.message);
-      clearPinInput();
-    } else {
+        clearPinInput();
+      } else {
         toast.error(result.message);
         setPinInput("");
       }
-    } catch (error) {
+    } catch {
       toast.error("An error occurred while resetting the PIN");
       setPinInput("");
     } finally {
@@ -252,7 +267,7 @@ const PinLock = ({ children, sectionName = "Protected Section", isVideoPlaying =
       try {
         const result = switchToAdmin(adminPinInput);
         if (result.success) {
-          setCurrentUserRole('admin');
+          setCurrentUserRole("admin");
           setShowAdminSwitch(false);
           setAdminPinInput("");
           toast.success(result.message);
@@ -260,7 +275,7 @@ const PinLock = ({ children, sectionName = "Protected Section", isVideoPlaying =
           toast.error(result.message);
           setAdminPinInput("");
         }
-      } catch (error) {
+      } catch {
         toast.error("An error occurred while switching to admin");
         setAdminPinInput("");
       } finally {
@@ -277,10 +292,10 @@ const PinLock = ({ children, sectionName = "Protected Section", isVideoPlaying =
     try {
       const result = switchToUser();
       if (result.success) {
-        setCurrentUserRole('user');
+        setCurrentUserRole("user");
         toast.success(result.message);
       }
-    } catch (error) {
+    } catch {
       toast.error("An error occurred while switching to user");
     } finally {
       setIsLoading(false);
@@ -328,16 +343,23 @@ const PinLock = ({ children, sectionName = "Protected Section", isVideoPlaying =
 
   if (!pinUnlocked) {
     return (
-      <div className="pin-lock-container" role="main" aria-label={`${sectionName} Lock Screen`}>
+      <div
+        className="pin-lock-container"
+        role="main"
+        aria-label={`${sectionName} Lock Screen`}
+      >
         <h2>🔒 {sectionName} Locked</h2>
-        
+
         {/* Role Display */}
         <div className="role-display" role="status" aria-live="polite">
-          <span className={`role-badge ${currentUserRole}`} aria-label={`Current role: ${currentUserRole}`}>
-            {currentUserRole === 'admin' ? '👑 Admin' : '👤 User'}
+          <span
+            className={`role-badge ${currentUserRole}`}
+            aria-label={`Current role: ${currentUserRole}`}
+          >
+            {currentUserRole === "admin" ? "👑 Admin" : "👤 User"}
           </span>
-          {currentUserRole === 'admin' && (
-            <button 
+          {currentUserRole === "admin" && (
+            <button
               onClick={handleSwitchToUser}
               className="role-switch-btn"
               title="Switch to User Role"
@@ -347,8 +369,8 @@ const PinLock = ({ children, sectionName = "Protected Section", isVideoPlaying =
               👤 Switch to User
             </button>
           )}
-          {currentUserRole === 'user' && (
-            <button 
+          {currentUserRole === "user" && (
+            <button
               onClick={() => setShowAdminSwitch(true)}
               className="role-switch-btn"
               title="Switch to Admin Role"
@@ -362,7 +384,12 @@ const PinLock = ({ children, sectionName = "Protected Section", isVideoPlaying =
 
         {/* Admin Switch Modal */}
         {showAdminSwitch && (
-          <div className="admin-switch-modal" role="dialog" aria-modal="true" aria-labelledby="admin-switch-title">
+          <div
+            className="admin-switch-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-switch-title"
+          >
             <div className="admin-switch-content">
               <h3 id="admin-switch-title">Switch to Admin Role</h3>
               <p>Enter admin PIN to switch to admin role:</p>
@@ -391,19 +418,19 @@ const PinLock = ({ children, sectionName = "Protected Section", isVideoPlaying =
                 </button>
               </div>
               <div className="admin-switch-buttons">
-                <button 
-                  onClick={handleAdminSwitch} 
+                <button
+                  onClick={handleAdminSwitch}
                   className="pin-button confirm"
                   disabled={isLoading || adminPinInput.length !== 4}
                   aria-label="Switch to admin role"
                 >
                   {isLoading ? "Switching..." : "Switch to Admin"}
                 </button>
-                <button 
+                <button
                   onClick={() => {
                     setShowAdminSwitch(false);
                     setAdminPinInput("");
-                  }} 
+                  }}
                   className="pin-button cancel"
                   disabled={isLoading}
                   aria-label="Cancel admin switch"
@@ -419,20 +446,20 @@ const PinLock = ({ children, sectionName = "Protected Section", isVideoPlaying =
           {pinSet ? (
             <>
               <div className="pin-input-wrapper">
-              <input
+                <input
                   ref={pinInputRef}
                   type={showPassword ? "text" : "password"}
-                maxLength={4}
-                value={pinInput}
-                onChange={handleInputChange}
-                onKeyPress={handleKeyPress}
-                placeholder={
-                  showResetConfirmation
-                    ? "Enter current PIN to reset"
-                    : "Enter 4-digit PIN"
-                }
-                className="pin-input"
-                autoComplete="off"
+                  maxLength={4}
+                  value={pinInput}
+                  onChange={handleInputChange}
+                  onKeyPress={handleKeyPress}
+                  placeholder={
+                    showResetConfirmation
+                      ? "Enter current PIN to reset"
+                      : "Enter 4-digit PIN"
+                  }
+                  className="pin-input"
+                  autoComplete="off"
                   aria-label={
                     showResetConfirmation
                       ? "Current PIN for reset"
@@ -480,14 +507,14 @@ const PinLock = ({ children, sectionName = "Protected Section", isVideoPlaying =
                     {isLoading ? "Unlocking..." : "Unlock"}
                   </button>
                   {isAdmin() && (
-                  <button
-                    onClick={handleResetRequest}
-                    className="pin-button reset"
+                    <button
+                      onClick={handleResetRequest}
+                      className="pin-button reset"
                       disabled={isLoading}
                       aria-label="Reset section PIN"
-                  >
-                    Reset PIN
-                  </button>
+                    >
+                      Reset PIN
+                    </button>
                   )}
                 </div>
               )}
@@ -497,37 +524,39 @@ const PinLock = ({ children, sectionName = "Protected Section", isVideoPlaying =
               {isAdmin() ? (
                 <>
                   <div className="pin-input-wrapper">
-              <input
+                    <input
                       ref={pinInputRef}
                       type={showPassword ? "text" : "password"}
-                maxLength={4}
-                value={pinInput}
-                onChange={handleInputChange}
-                onKeyPress={handleKeyPress}
-                placeholder="Set 4-digit PIN"
-                className="pin-input"
-                autoComplete="off"
+                      maxLength={4}
+                      value={pinInput}
+                      onChange={handleInputChange}
+                      onKeyPress={handleKeyPress}
+                      placeholder="Set 4-digit PIN"
+                      className="pin-input"
+                      autoComplete="off"
                       aria-label="New section PIN"
                       disabled={isLoading}
-              />
+                    />
                     <button
                       type="button"
                       onClick={togglePasswordVisibility}
                       className="password-toggle"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
                       title={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? "🙈" : "👁️"}
                     </button>
                   </div>
-                  <button 
-                    onClick={handlePinSet} 
+                  <button
+                    onClick={handlePinSet}
                     className="pin-button set"
                     disabled={isLoading || pinInput.length !== 4}
                     aria-label="Set section PIN"
                   >
                     {isLoading ? "Setting..." : "Set PIN"}
-              </button>
+                  </button>
                 </>
               ) : (
                 <div className="no-pin-set" role="status" aria-live="polite">
@@ -540,7 +569,11 @@ const PinLock = ({ children, sectionName = "Protected Section", isVideoPlaying =
         </div>
 
         {/* Keyboard shortcuts hint */}
-        <div className="keyboard-hints" role="note" aria-label="Keyboard shortcuts">
+        <div
+          className="keyboard-hints"
+          role="note"
+          aria-label="Keyboard shortcuts"
+        >
           <p>💡 Press Enter to submit • Press Escape to cancel</p>
         </div>
       </div>
@@ -549,25 +582,36 @@ const PinLock = ({ children, sectionName = "Protected Section", isVideoPlaying =
 
   return (
     <div className="protected-content" role="main">
-      <div className="lock-control" role="toolbar" aria-label="Section controls">
+      <div
+        className="lock-control"
+        role="toolbar"
+        aria-label="Section controls"
+      >
         <div className="role-info">
-          <span className={`role-badge ${currentUserRole}`} aria-label={`Current role: ${currentUserRole}`}>
-            {currentUserRole === 'admin' ? '👑 Admin' : '👤 User'}
+          <span
+            className={`role-badge ${currentUserRole}`}
+            aria-label={`Current role: ${currentUserRole}`}
+          >
+            {currentUserRole === "admin" ? "👑 Admin" : "👤 User"}
           </span>
         </div>
-        
+
         {/* Auto-lock countdown */}
         {autoLockSettings.enabled && timeRemaining > 0 && (
           <div className="auto-lock-countdown" role="timer" aria-live="polite">
             <span className="countdown-label">Auto-lock in:</span>
-            <span className={`countdown-timer ${timeRemaining <= 60000 ? 'warning' : ''}`}>
+            <span
+              className={`countdown-timer ${
+                timeRemaining <= 60000 ? "warning" : ""
+              }`}
+            >
               {formatTimeRemaining(timeRemaining)}
             </span>
           </div>
         )}
-        
-        <button 
-          onClick={handlePinLock} 
+
+        <button
+          onClick={handlePinLock}
           className="lock-button"
           aria-label="Lock section"
           title="Lock section"
@@ -575,7 +619,7 @@ const PinLock = ({ children, sectionName = "Protected Section", isVideoPlaying =
           🔒 Lock Section
         </button>
       </div>
-      
+
       {children}
     </div>
   );

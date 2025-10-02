@@ -248,7 +248,7 @@ const ExternalLinks = () => {
           selectedCategory === "all" || category.category === selectedCategory;
 
         // Apply additional filters
-        const domain = link.replace(/^https?:\/\/(www\.)?/, "").split("/")[0];
+        const _domain = link.replace(/^https?:\/\/(www\.)?/, "").split("/")[0];
         const matchesStatus =
           filters.status === "all" ||
           (filters.status === "active" && !link.includes("inactive")) ||
@@ -308,10 +308,13 @@ const ExternalLinks = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="external-links-search"
-              onFocus={() => { setShowFilters(true); setShowDropdown(true); }}
+              onFocus={() => {
+                setShowFilters(true);
+                setShowDropdown(true);
+              }}
               onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') {
+                if (e.key === "Enter") {
                   e.preventDefault();
                   if (searchTerm.trim()) {
                     handleSearch(searchTerm.trim());
@@ -325,7 +328,10 @@ const ExternalLinks = () => {
                 type="button"
                 className="clear-search"
                 onMouseDown={(e) => e.preventDefault()}
-                onClick={() => { setSearchTerm(""); setShowDropdown(true); }}
+                onClick={() => {
+                  setSearchTerm("");
+                  setShowDropdown(true);
+                }}
               >
                 ✕
               </button>
@@ -340,7 +346,10 @@ const ExternalLinks = () => {
                   key={index}
                   className="suggestion-item"
                   onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => { handleSearch(suggestion.domain); setShowDropdown(false); }}
+                  onClick={() => {
+                    handleSearch(suggestion.domain);
+                    setShowDropdown(false);
+                  }}
                 >
                   <span className="suggestion-domain">{suggestion.domain}</span>
                   <span className="suggestion-category">
@@ -363,7 +372,10 @@ const ExternalLinks = () => {
                   key={index}
                   className="recent-search-item"
                   onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => { handleSearch(term); setShowDropdown(false); }}
+                  onClick={() => {
+                    handleSearch(term);
+                    setShowDropdown(false);
+                  }}
                 >
                   <span className="search-icon">🔍</span>
                   {term}

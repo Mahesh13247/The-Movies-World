@@ -55,22 +55,22 @@ const AdultSearchBar = () => {
   const [downloadQueue, setDownloadQueue] = useState(() =>
     JSON.parse(localStorage.getItem("adultDownloadQueue") || "[]")
   );
-  const [searchSuggestions, setSearchSuggestions] = useState([]);
+  const [_searchSuggestions, setSearchSuggestions] = useState([]);
   const [trendingSearches, setTrendingSearches] = useState([]);
   const [searchStats, setSearchStats] = useState({
     totalResults: 0,
-    searchTime: 0
+    searchTime: 0,
   });
   const [newPlaylistName, setNewPlaylistName] = useState("");
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [advancedSearch, setAdvancedSearch] = useState({
-    order: 'top-weekly',
-    duration: '',
-    quality: '',
-    dateRange: '',
-    language: '',
+    order: "top-weekly",
+    duration: "",
+    quality: "",
+    dateRange: "",
+    language: "",
     tags: [],
-    excludeTags: []
+    excludeTags: [],
   });
   const [searchHistory, setSearchHistory] = useState(() =>
     JSON.parse(localStorage.getItem("adultSearchHistory") || "[]")
@@ -79,7 +79,7 @@ const AdultSearchBar = () => {
   const [searchAnalytics, setSearchAnalytics] = useState({
     totalSearches: 0,
     averageResults: 0,
-    popularTerms: new Map()
+    popularTerms: new Map(),
   });
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [editingPlaylistId, setEditingPlaylistId] = useState(null);
@@ -88,15 +88,15 @@ const AdultSearchBar = () => {
   // Enhanced API endpoints and configuration
   const EPORNER_API_KEY = import.meta.env.VITE_EPORNER_API_KEY;
   const EPORNER_BASE_URL = "https://www.eporner.com/api/v2/video";
-  
+
   // Advanced search configuration
   const searchConfig = {
     perPage: 48,
-    thumbSize: 'medium',
-    order: 'top-weekly', // top-weekly, top-monthly, top-yearly, newest, rating
+    thumbSize: "medium",
+    order: "top-weekly", // top-weekly, top-monthly, top-yearly, newest, rating
     gay: 0,
     lq: 1,
-    format: 'json'
+    format: "json",
   };
 
   const tabOrder = [
@@ -115,10 +115,10 @@ const AdultSearchBar = () => {
   // Swipe gesture handlers
   let touchStartX = 0;
   let touchEndX = 0;
-  const handleTouchStart = (e) => {
+  const _handleTouchStart = (e) => {
     touchStartX = e.changedTouches[0].screenX;
   };
-  const handleTouchEnd = (e) => {
+  const _handleTouchEnd = (e) => {
     touchEndX = e.changedTouches[0].screenX;
     handleSwipeGesture();
   };
@@ -146,7 +146,9 @@ const AdultSearchBar = () => {
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 300;
+          const nearBottom =
+            window.innerHeight + window.scrollY >=
+            document.body.offsetHeight - 300;
           if (nearBottom && hasMore && !isFetchingMore && !loading) {
             fetchMoreResults();
           }
@@ -191,25 +193,25 @@ const AdultSearchBar = () => {
         setSearchStats({ totalResults: 0, searchTime: 0 });
         return;
       }
-      
+
       const startTime = performance.now();
       setLoading(true);
-      
+
       // Create cache key
       const cacheKey = `${query}-${JSON.stringify(advancedParams)}`;
-      
+
       // Check cache first
       if (searchCache.has(cacheKey)) {
         const cachedData = searchCache.get(cacheKey);
         setSearchResults(cachedData.results);
         setSearchStats(cachedData.stats);
         setLoading(false);
-        
+
         // Update analytics
         updateSearchAnalytics(query, cachedData.results.length);
         return;
       }
-      
+
       try {
         // Cancel any in-flight request
         if (activeSearchControllerRef.current) {
@@ -226,26 +228,29 @@ const AdultSearchBar = () => {
           order: advancedParams.order || searchConfig.order,
           gay: searchConfig.gay,
           lq: searchConfig.lq,
-          format: searchConfig.format
+          format: searchConfig.format,
         });
 
         // Add advanced filters
-        if (advancedParams.duration) searchParams.append('duration', advancedParams.duration);
-        if (advancedParams.quality) searchParams.append('quality', advancedParams.quality);
-        if (advancedParams.language) searchParams.append('language', advancedParams.language);
+        if (advancedParams.duration)
+          searchParams.append("duration", advancedParams.duration);
+        if (advancedParams.quality)
+          searchParams.append("quality", advancedParams.quality);
+        if (advancedParams.language)
+          searchParams.append("language", advancedParams.language);
         if (advancedParams.tags && advancedParams.tags.length > 0) {
-          searchParams.append('tags', advancedParams.tags.join(','));
+          searchParams.append("tags", advancedParams.tags.join(","));
         }
 
         const epornerResponse = await fetch(
           `${EPORNER_BASE_URL}/search/?${searchParams.toString()}&key=${EPORNER_API_KEY}`,
           { signal: controller.signal }
         );
-        
+
         if (!epornerResponse.ok) {
           throw new Error(`HTTP error! status: ${epornerResponse.status}`);
         }
-        
+
         const epornerData = await epornerResponse.json();
         let epornerResults = (epornerData.videos || []).map((video) => ({
           id: video.id,
@@ -260,60 +265,70 @@ const AdultSearchBar = () => {
           directUrl: `https://www.eporner.com/video/${video.id}`,
           uploadDate: video.upload_date,
           tags: video.tags || [],
-          language: video.language || 'Unknown',
-          quality: video.quality || 'Unknown',
+          language: video.language || "Unknown",
+          quality: video.quality || "Unknown",
           categories: video.categories || [],
-          category: (video.categories && video.categories.length > 0) ? video.categories[0] : ''
+          category:
+            video.categories && video.categories.length > 0
+              ? video.categories[0]
+              : "",
         }));
         // Note: removed heavy multi-page eager fetch for smoother UX. Use fetchMoreResults instead.
-        
+
         const endTime = performance.now();
         const searchTime = Math.round(endTime - startTime);
-        
+
         // Cache the results
         const cacheData = {
           results: epornerResults,
-          stats: { totalResults: epornerResults.length, searchTime: searchTime },
-          timestamp: Date.now()
+          stats: {
+            totalResults: epornerResults.length,
+            searchTime: searchTime,
+          },
+          timestamp: Date.now(),
         };
-        setSearchCache(prev => new Map(prev.set(cacheKey, cacheData)));
-        
+        setSearchCache((prev) => new Map(prev.set(cacheKey, cacheData)));
+
         setSearchResults(epornerResults);
-        setSearchStats({ 
-          totalResults: epornerResults.length, 
-          searchTime: searchTime 
+        setSearchStats({
+          totalResults: epornerResults.length,
+          searchTime: searchTime,
         });
-        
+
         // Update search history and analytics
         updateSearchHistory(query);
         updateSearchAnalytics(query, epornerResults.length);
         updateRecentSearches(query);
-        
+
         // Show success message for large result sets
         if (epornerResults.length > 50) {
-          toast.success(t('found_videos_in_ms', { count: epornerResults.length, time: searchTime }));
+          toast.success(
+            t("found_videos_in_ms", {
+              count: epornerResults.length,
+              time: searchTime,
+            })
+          );
         }
-        
       } catch (error) {
         console.error("Error searching videos:", error);
-        
+
         // Enhanced error handling
-        if (error.name === 'AbortError') {
+        if (error.name === "AbortError") {
           // Swallow aborted fetches (newer request in-flight)
           return;
         }
-        if (error.message.includes('HTTP error! status: 429')) {
-          toast.error(t('too_many_requests_please_wait_and_try_again'));
-        } else if (error.message.includes('HTTP error! status: 403')) {
-          toast.error(t('access_denied_please_check_your_api_key'));
-        } else if (error.message.includes('HTTP error! status: 500')) {
-          toast.error(t('server_error_please_try_again_later'));
-        } else if (error.message.includes('Failed to fetch')) {
-          toast.error(t('network_error_please_check_your_internet_connection'));
+        if (error.message.includes("HTTP error! status: 429")) {
+          toast.error(t("too_many_requests_please_wait_and_try_again"));
+        } else if (error.message.includes("HTTP error! status: 403")) {
+          toast.error(t("access_denied_please_check_your_api_key"));
+        } else if (error.message.includes("HTTP error! status: 500")) {
+          toast.error(t("server_error_please_try_again_later"));
+        } else if (error.message.includes("Failed to fetch")) {
+          toast.error(t("network_error_please_check_your_internet_connection"));
         } else {
-          toast.error(t('error_searching_videos_please_try_again'));
+          toast.error(t("error_searching_videos_please_try_again"));
         }
-        
+
         setSearchStats({ totalResults: 0, searchTime: 0 });
       } finally {
         setLoading(false);
@@ -324,8 +339,11 @@ const AdultSearchBar = () => {
 
   // Update search history
   const updateSearchHistory = (query) => {
-    setSearchHistory(prev => {
-      const newHistory = [query, ...prev.filter(q => q !== query)].slice(0, 20);
+    setSearchHistory((prev) => {
+      const newHistory = [query, ...prev.filter((q) => q !== query)].slice(
+        0,
+        20
+      );
       localStorage.setItem("adultSearchHistory", JSON.stringify(newHistory));
       return newHistory;
     });
@@ -333,18 +351,21 @@ const AdultSearchBar = () => {
 
   // Update search analytics
   const updateSearchAnalytics = (query, resultCount) => {
-    setSearchAnalytics(prev => {
+    setSearchAnalytics((prev) => {
       const newPopularTerms = new Map(prev.popularTerms);
       const currentCount = newPopularTerms.get(query) || 0;
       newPopularTerms.set(query, currentCount + 1);
-      
+
       const totalSearches = prev.totalSearches + 1;
-      const averageResults = Math.round((prev.averageResults * (totalSearches - 1) + resultCount) / totalSearches);
-      
+      const averageResults = Math.round(
+        (prev.averageResults * (totalSearches - 1) + resultCount) /
+          totalSearches
+      );
+
       return {
         totalSearches,
         averageResults,
-        popularTerms: newPopularTerms
+        popularTerms: newPopularTerms,
       };
     });
   };
@@ -355,7 +376,15 @@ const AdultSearchBar = () => {
     try {
       const nextPage = page + 1;
       const epornerResponse = await fetch(
-        `${EPORNER_BASE_URL}/search/?query=${encodeURIComponent(searchQuery)}&per_page=${searchConfig.perPage}&page=${nextPage}&thumbsize=${searchConfig.thumbSize}&order=${advancedSearch.order || searchConfig.order}&gay=${searchConfig.gay}&lq=${searchConfig.lq}&format=${searchConfig.format}&key=${EPORNER_API_KEY}`
+        `${EPORNER_BASE_URL}/search/?query=${encodeURIComponent(
+          searchQuery
+        )}&per_page=${searchConfig.perPage}&page=${nextPage}&thumbsize=${
+          searchConfig.thumbSize
+        }&order=${advancedSearch.order || searchConfig.order}&gay=${
+          searchConfig.gay
+        }&lq=${searchConfig.lq}&format=${
+          searchConfig.format
+        }&key=${EPORNER_API_KEY}`
       );
       const epornerData = await epornerResponse.json();
       const newResults = (epornerData.videos || []).map((video) => ({
@@ -371,10 +400,13 @@ const AdultSearchBar = () => {
         directUrl: `https://www.eporner.com/video/${video.id}`,
         uploadDate: video.upload_date,
         tags: video.tags || [],
-        language: video.language || 'Unknown',
-        quality: video.quality || 'Unknown',
+        language: video.language || "Unknown",
+        quality: video.quality || "Unknown",
         categories: video.categories || [],
-        category: (video.categories && video.categories.length > 0) ? video.categories[0] : ''
+        category:
+          video.categories && video.categories.length > 0
+            ? video.categories[0]
+            : "",
       }));
       if (newResults.length < searchConfig.perPage) setHasMore(false);
       setSearchResults((prev) => [
@@ -382,7 +414,7 @@ const AdultSearchBar = () => {
         ...newResults.filter((v) => !prev.some((x) => x.id === v.id)),
       ]);
       setPage(nextPage);
-    } catch (error) {
+    } catch {
       setHasMore(false);
     } finally {
       setIsFetchingMore(false);
@@ -458,10 +490,10 @@ const AdultSearchBar = () => {
       let updated;
       if (video && cleanPrev.some((v) => v && v.id === video.id)) {
         updated = cleanPrev.filter((v) => v && v.id !== video.id);
-        toast.info(t('removed_from_favorites'));
+        toast.info(t("removed_from_favorites"));
       } else if (video) {
         updated = [video, ...cleanPrev];
-        toast.success(t('added_to_favorites'));
+        toast.success(t("added_to_favorites"));
       } else {
         updated = cleanPrev;
       }
@@ -477,10 +509,10 @@ const AdultSearchBar = () => {
       let updated;
       if (video && cleanPrev.some((v) => v && v.id === video.id)) {
         updated = cleanPrev.filter((v) => v && v.id !== video.id);
-        toast.info(t('removed_from_watchlist'));
+        toast.info(t("removed_from_watchlist"));
       } else if (video) {
         updated = [video, ...cleanPrev];
-        toast.success(t('added_to_watchlist'));
+        toast.success(t("added_to_watchlist"));
       } else {
         updated = cleanPrev;
       }
@@ -525,7 +557,7 @@ const AdultSearchBar = () => {
 
     // Apply category filter
     if (categoryFilter) {
-      filtered = filtered.filter(video => 
+      filtered = filtered.filter((video) =>
         video.title.toLowerCase().includes(categoryFilter.toLowerCase())
       );
     }
@@ -533,11 +565,19 @@ const AdultSearchBar = () => {
     // Apply duration filter
     if (filters.duration) {
       // Map UI values to duration ranges in seconds
-      let min = 0, max = Infinity;
-      if (filters.duration === 'short') { min = 0; max = 10 * 60; }
-      else if (filters.duration === 'medium') { min = 10 * 60; max = 30 * 60; }
-      else if (filters.duration === 'long') { min = 30 * 60; max = Infinity; }
-      filtered = filtered.filter(video => {
+      let min = 0,
+        max = Infinity;
+      if (filters.duration === "short") {
+        min = 0;
+        max = 10 * 60;
+      } else if (filters.duration === "medium") {
+        min = 10 * 60;
+        max = 30 * 60;
+      } else if (filters.duration === "long") {
+        min = 30 * 60;
+        max = Infinity;
+      }
+      filtered = filtered.filter((video) => {
         const duration = Number(video.durationSeconds) || 0;
         return duration >= min && duration <= max;
       });
@@ -545,17 +585,17 @@ const AdultSearchBar = () => {
 
     // Apply quality filter (based on views/rating)
     if (filters.quality) {
-      filtered = filtered.filter(video => {
-        const score = (video.views * 0.7) + (video.rating * 0.3);
+      filtered = filtered.filter((video) => {
+        const score = video.views * 0.7 + video.rating * 0.3;
         switch (filters.quality) {
-          case 'high':
+          case "high":
             return score > 1000000;
-          case 'medium':
+          case "medium":
             return score > 100000 && score <= 1000000;
-          case 'low':
+          case "low":
             return score <= 100000;
           default:
-        return true;
+            return true;
         }
       });
     }
@@ -563,7 +603,7 @@ const AdultSearchBar = () => {
     // Apply rating filter
     if (filters.rating) {
       const minRating = parseFloat(filters.rating);
-      filtered = filtered.filter(video => video.rating >= minRating);
+      filtered = filtered.filter((video) => video.rating >= minRating);
     }
 
     return filtered;
@@ -572,54 +612,73 @@ const AdultSearchBar = () => {
   // Enhanced sorting options
   const applyAdvancedSorting = (results, sortBy) => {
     const sorted = [...results];
-    
+
     switch (sortBy) {
-      case 'relevance':
+      case "relevance":
         // Sort by combination of views and rating
         return sorted.sort((a, b) => {
-          const scoreA = (a.views * 0.7) + (a.rating * 0.3);
-          const scoreB = (b.views * 0.7) + (b.rating * 0.3);
+          const scoreA = a.views * 0.7 + a.rating * 0.3;
+          const scoreB = b.views * 0.7 + b.rating * 0.3;
           return scoreB - scoreA;
         });
-      
-      case 'views':
+
+      case "views":
         return sorted.sort((a, b) => b.views - a.views);
-      
-      case 'rating':
+
+      case "rating":
         return sorted.sort((a, b) => b.rating - a.rating);
-      
-      case 'duration':
+
+      case "duration":
         return sorted.sort((a, b) => b.durationSeconds - a.durationSeconds);
-      
-      case 'newest':
+
+      case "newest":
         // Prefer uploadDate if available
         return sorted.sort((a, b) => {
           const aDate = a.uploadDate ? new Date(a.uploadDate).getTime() : 0;
           const bDate = b.uploadDate ? new Date(b.uploadDate).getTime() : 0;
           return bDate - aDate;
         });
-      
-      case 'title':
+
+      case "title":
         return sorted.sort((a, b) => a.title.localeCompare(b.title));
-      
+
       default:
         return sorted;
     }
   };
 
   // Memoize expensive computations
-  const filteredResults = useMemo(() => applyAdvancedSorting(applyAdvancedFilters(searchResults), sortBy), [searchResults, filters, categoryFilter, sortBy]);
+  const filteredResults = useMemo(
+    () => applyAdvancedSorting(applyAdvancedFilters(searchResults), sortBy),
+    [searchResults, filters, categoryFilter, sortBy]
+  );
   const popularSearches = [
-    "amateur", "anal", "blowjob", "creampie", "cumshot", "deepthroat", 
-    "double penetration", "facial", "gangbang", "hardcore", "lesbian", 
-    "massage", "masturbation", "oral", "pov", "rough", "threesome", 
-    "toys", "vintage", "young"
+    "amateur",
+    "anal",
+    "blowjob",
+    "creampie",
+    "cumshot",
+    "deepthroat",
+    "double penetration",
+    "facial",
+    "gangbang",
+    "hardcore",
+    "lesbian",
+    "massage",
+    "masturbation",
+    "oral",
+    "pov",
+    "rough",
+    "threesome",
+    "toys",
+    "vintage",
+    "young",
   ];
   const allCategories = useMemo(() => {
     const categories = new Set();
-    searchResults.forEach(video => {
-      const words = video.title.toLowerCase().split(' ');
-      words.forEach(word => {
+    searchResults.forEach((video) => {
+      const words = video.title.toLowerCase().split(" ");
+      words.forEach((word) => {
         if (popularSearches.includes(word) && word.length > 3) {
           categories.add(word);
         }
@@ -628,7 +687,13 @@ const AdultSearchBar = () => {
     return Array.from(categories).slice(0, 10);
   }, [searchResults]);
   const recommendedResults = useMemo(() => {
-    const userCategories = Array.from(new Set([...history, ...favorites].flatMap((v) => v.category ? [v.category] : [])));
+    const userCategories = Array.from(
+      new Set(
+        [...history, ...favorites].flatMap((v) =>
+          v.category ? [v.category] : []
+        )
+      )
+    );
     return searchResults.filter((v) => userCategories.includes(v.category));
   }, [searchResults, history, favorites]);
 
@@ -636,125 +701,163 @@ const AdultSearchBar = () => {
   const clearFilters = () => {
     setFilters({ category: "", duration: "", quality: "", rating: "" });
     setSortBy("relevance");
-    toast.info(t('filters_cleared'));
+    toast.info(t("filters_cleared"));
   };
 
   // Advanced search filters component
   const renderAdvancedFilters = () => {
-    console.log('Rendering advanced filters, showAdvancedFilters:', showAdvancedFilters);
+    console.log(
+      "Rendering advanced filters, showAdvancedFilters:",
+      showAdvancedFilters
+    );
     return (
       <div className="advanced-filters-section">
         <button
           className="advanced-filters-toggle"
           onClick={() => {
-            console.log('Advanced filters toggle clicked');
+            console.log("Advanced filters toggle clicked");
             setShowAdvancedFilters(!showAdvancedFilters);
           }}
           type="button"
         >
-          <span>{t('advanced_filters') || 'Advanced Filters'}</span>
-          <span className={`toggle-icon ${showAdvancedFilters ? 'expanded' : ''}`}>▼</span>
+          <span>{t("advanced_filters") || "Advanced Filters"}</span>
+          <span
+            className={`toggle-icon ${showAdvancedFilters ? "expanded" : ""}`}
+          >
+            ▼
+          </span>
         </button>
-        
+
         {showAdvancedFilters && (
           <div className="advanced-filters-panel">
             <div className="filter-group">
-              <label>{t('sort_order') || 'Sort Order'}:</label>
+              <label>{t("sort_order") || "Sort Order"}:</label>
               <select
                 value={advancedSearch.order}
                 onChange={(e) => {
-                  setAdvancedSearch(prev => ({ ...prev, order: e.target.value }));
+                  setAdvancedSearch((prev) => ({
+                    ...prev,
+                    order: e.target.value,
+                  }));
                   if (searchQuery.trim()) {
-                    debouncedSearch(searchQuery, { ...advancedSearch, order: e.target.value });
+                    debouncedSearch(searchQuery, {
+                      ...advancedSearch,
+                      order: e.target.value,
+                    });
                   }
                 }}
               >
-                <option value="top-weekly">{t('top_weekly') || 'Top Weekly'}</option>
-                <option value="top-monthly">{t('top_monthly') || 'Top Monthly'}</option>
-                <option value="top-yearly">{t('top_yearly') || 'Top Yearly'}</option>
-                <option value="newest">{t('newest') || 'Newest'}</option>
-                <option value="rating">{t('highest_rated') || 'Highest Rated'}</option>
-                <option value="views">{t('most_viewed') || 'Most Viewed'}</option>
+                <option value="top-weekly">
+                  {t("top_weekly") || "Top Weekly"}
+                </option>
+                <option value="top-monthly">
+                  {t("top_monthly") || "Top Monthly"}
+                </option>
+                <option value="top-yearly">
+                  {t("top_yearly") || "Top Yearly"}
+                </option>
+                <option value="newest">{t("newest") || "Newest"}</option>
+                <option value="rating">
+                  {t("highest_rated") || "Highest Rated"}
+                </option>
+                <option value="views">
+                  {t("most_viewed") || "Most Viewed"}
+                </option>
               </select>
             </div>
-            
+
             <div className="filter-group">
-              <label>{t('duration') || 'Duration'}:</label>
+              <label>{t("duration") || "Duration"}:</label>
               <select
                 value={advancedSearch.duration}
                 onChange={(e) => {
-                  setAdvancedSearch(prev => ({ ...prev, duration: e.target.value }));
+                  setAdvancedSearch((prev) => ({
+                    ...prev,
+                    duration: e.target.value,
+                  }));
                 }}
               >
-                <option value="">{t('any_duration') || 'Any Duration'}</option>
-                <option value="short">{t('short_lt_10_min') || 'Short (<10 min)'}</option>
-                <option value="medium">{t('medium_10_30_min') || 'Medium (10-30 min)'}</option>
-                <option value="long">{t('long_gt_30_min') || 'Long (>30 min)'}</option>
+                <option value="">{t("any_duration") || "Any Duration"}</option>
+                <option value="short">
+                  {t("short_lt_10_min") || "Short (<10 min)"}
+                </option>
+                <option value="medium">
+                  {t("medium_10_30_min") || "Medium (10-30 min)"}
+                </option>
+                <option value="long">
+                  {t("long_gt_30_min") || "Long (>30 min)"}
+                </option>
               </select>
             </div>
-            
+
             <div className="filter-group">
-              <label>{t('quality') || 'Quality'}:</label>
+              <label>{t("quality") || "Quality"}:</label>
               <select
                 value={advancedSearch.quality}
                 onChange={(e) => {
-                  setAdvancedSearch(prev => ({ ...prev, quality: e.target.value }));
+                  setAdvancedSearch((prev) => ({
+                    ...prev,
+                    quality: e.target.value,
+                  }));
                 }}
               >
-                <option value="">{t('any_quality') || 'Any Quality'}</option>
-                <option value="hd">{t('hd') || 'HD'}</option>
-                <option value="sd">{t('sd') || 'SD'}</option>
-                <option value="4k">{t('4k') || '4K'}</option>
+                <option value="">{t("any_quality") || "Any Quality"}</option>
+                <option value="hd">{t("hd") || "HD"}</option>
+                <option value="sd">{t("sd") || "SD"}</option>
+                <option value="4k">{t("4k") || "4K"}</option>
               </select>
             </div>
-            
+
             <div className="filter-group">
-              <label>{t('language') || 'Language'}:</label>
+              <label>{t("language") || "Language"}:</label>
               <select
                 value={advancedSearch.language}
                 onChange={(e) => {
-                  setAdvancedSearch(prev => ({ ...prev, language: e.target.value }));
+                  setAdvancedSearch((prev) => ({
+                    ...prev,
+                    language: e.target.value,
+                  }));
                 }}
               >
-                <option value="">{t('any_language') || 'Any Language'}</option>
-                <option value="en">{t('english') || 'English'}</option>
-                <option value="es">{t('spanish') || 'Spanish'}</option>
-                <option value="fr">{t('french') || 'French'}</option>
-                <option value="de">{t('german') || 'German'}</option>
-                <option value="it">{t('italian') || 'Italian'}</option>
-                <option value="pt">{t('portuguese') || 'Portuguese'}</option>
-                <option value="ru">{t('russian') || 'Russian'}</option>
-                <option value="ja">{t('japanese') || 'Japanese'}</option>
-                <option value="ko">{t('korean') || 'Korean'}</option>
-                <option value="zh">{t('chinese') || 'Chinese'}</option>
+                <option value="">{t("any_language") || "Any Language"}</option>
+                <option value="en">{t("english") || "English"}</option>
+                <option value="es">{t("spanish") || "Spanish"}</option>
+                <option value="fr">{t("french") || "French"}</option>
+                <option value="de">{t("german") || "German"}</option>
+                <option value="it">{t("italian") || "Italian"}</option>
+                <option value="pt">{t("portuguese") || "Portuguese"}</option>
+                <option value="ru">{t("russian") || "Russian"}</option>
+                <option value="ja">{t("japanese") || "Japanese"}</option>
+                <option value="ko">{t("korean") || "Korean"}</option>
+                <option value="zh">{t("chinese") || "Chinese"}</option>
               </select>
             </div>
-            
+
             <div className="filter-actions">
               <button
                 className="apply-filters-btn"
                 onClick={() => {
-                  console.log('Apply filters clicked');
+                  console.log("Apply filters clicked");
                   if (searchQuery.trim()) {
                     debouncedSearch(searchQuery, advancedSearch);
                   }
                 }}
                 type="button"
               >
-                {t('apply_filters') || 'Apply Filters'}
+                {t("apply_filters") || "Apply Filters"}
               </button>
               <button
                 className="clear-filters-btn"
                 onClick={() => {
-                  console.log('Clear filters clicked');
+                  console.log("Clear filters clicked");
                   setAdvancedSearch({
-                    order: 'top-weekly',
-                    duration: '',
-                    quality: '',
-                    dateRange: '',
-                    language: '',
+                    order: "top-weekly",
+                    duration: "",
+                    quality: "",
+                    dateRange: "",
+                    language: "",
                     tags: [],
-                    excludeTags: []
+                    excludeTags: [],
                   });
                   if (searchQuery.trim()) {
                     debouncedSearch(searchQuery, {});
@@ -762,7 +865,7 @@ const AdultSearchBar = () => {
                 }}
                 type="button"
               >
-                {t('clear_all') || 'Clear All'}
+                {t("clear_all") || "Clear All"}
               </button>
             </div>
           </div>
@@ -773,7 +876,12 @@ const AdultSearchBar = () => {
 
   // Regular filters section
   const renderFilters = () => {
-    console.log('Rendering filters, current filters:', filters, 'sortBy:', sortBy);
+    console.log(
+      "Rendering filters, current filters:",
+      filters,
+      "sortBy:",
+      sortBy
+    );
     const hasActiveFilters =
       filters.category ||
       filters.duration ||
@@ -787,9 +895,9 @@ const AdultSearchBar = () => {
           <select
             value={filters.category}
             onChange={(e) => {
-              console.log('Category filter changed:', e.target.value);
+              console.log("Category filter changed:", e.target.value);
               setFilters((f) => ({ ...f, category: e.target.value }));
-              toast.info(t('category_filter') + `: ${e.target.value || "All"}`);
+              toast.info(t("category_filter") + `: ${e.target.value || "All"}`);
             }}
             className={filters.category ? "active" : ""}
           >
@@ -802,9 +910,9 @@ const AdultSearchBar = () => {
           <select
             value={filters.duration}
             onChange={(e) => {
-              console.log('Duration filter changed:', e.target.value);
+              console.log("Duration filter changed:", e.target.value);
               setFilters((f) => ({ ...f, duration: e.target.value }));
-              toast.info(t('duration_filter') + `: ${e.target.value || "All"}`);
+              toast.info(t("duration_filter") + `: ${e.target.value || "All"}`);
             }}
             className={filters.duration ? "active" : ""}
           >
@@ -817,9 +925,9 @@ const AdultSearchBar = () => {
           <select
             value={filters.quality}
             onChange={(e) => {
-              console.log('Quality filter changed:', e.target.value);
+              console.log("Quality filter changed:", e.target.value);
               setFilters((f) => ({ ...f, quality: e.target.value }));
-              toast.info(t('quality_filter') + `: ${e.target.value || "All"}`);
+              toast.info(t("quality_filter") + `: ${e.target.value || "All"}`);
             }}
             className={filters.quality ? "active" : ""}
           >
@@ -831,9 +939,9 @@ const AdultSearchBar = () => {
           <select
             value={filters.rating}
             onChange={(e) => {
-              console.log('Rating filter changed:', e.target.value);
+              console.log("Rating filter changed:", e.target.value);
               setFilters((f) => ({ ...f, rating: e.target.value }));
-              toast.info(t('rating_filter') + `: ${e.target.value || "All"}`);
+              toast.info(t("rating_filter") + `: ${e.target.value || "All"}`);
             }}
             className={filters.rating ? "active" : ""}
           >
@@ -846,9 +954,9 @@ const AdultSearchBar = () => {
           <select
             value={sortBy}
             onChange={(e) => {
-              console.log('Sort by changed:', e.target.value);
+              console.log("Sort by changed:", e.target.value);
               setSortBy(e.target.value);
-              toast.info(t('sorting_by') + `: ${e.target.value}`);
+              toast.info(t("sorting_by") + `: ${e.target.value}`);
             }}
             className={sortBy !== "relevance" ? "active" : ""}
           >
@@ -863,18 +971,18 @@ const AdultSearchBar = () => {
           <button
             className="clear-filters"
             onClick={() => {
-              console.log('Clear filters clicked');
+              console.log("Clear filters clicked");
               clearFilters();
             }}
-            aria-label={t('clear_all_filters')}
+            aria-label={t("clear_all_filters")}
           >
-            {t('clear_filters')}
+            {t("clear_filters")}
           </button>
         )}
 
         {hasActiveFilters && (
           <div className="active-filters-info">
-            {filteredResults.length} {t('results_found')}
+            {filteredResults.length} {t("results_found")}
           </div>
         )}
       </div>
@@ -899,7 +1007,9 @@ const AdultSearchBar = () => {
   const renderEmptyState = () => (
     <div className="no-results">
       <h3>No Results Found</h3>
-      <p>Try adjusting your search or filters to find what you're looking for.</p>
+      <p>
+        Try adjusting your search or filters to find what you're looking for.
+      </p>
     </div>
   );
 
@@ -962,22 +1072,27 @@ const AdultSearchBar = () => {
             source: "eporner",
             embedUrl: `https://www.eporner.com/embed/${video.id}`,
             directUrl: `https://www.eporner.com/video/${video.id}`,
-            category: (video.categories && video.categories.length > 0) ? video.categories[0] : "",
-            categories: video.categories || []
+            category:
+              video.categories && video.categories.length > 0
+                ? video.categories[0]
+                : "",
+            categories: video.categories || [],
           }))
         );
-      } catch {}
+      } catch {
+        // Ignore fetch errors for trending
+      }
     };
     fetchTrending();
   }, []);
 
   // Extract unique categories from results
-  const filteredResultsByCategory = categoryFilter
+  const _filteredResultsByCategory = categoryFilter
     ? searchResults.filter((v) => v.category === categoryFilter)
     : searchResults;
 
   // Recommended for You: videos with categories/tags from history/favorites
-  const userCategories = Array.from(
+  const _userCategories = Array.from(
     new Set(
       [...history, ...favorites].flatMap((v) =>
         v.category ? [v.category] : []
@@ -986,24 +1101,40 @@ const AdultSearchBar = () => {
   );
 
   // Debounced localStorage writers
-  const debouncedSetFavorites = useRef(debounce((favorites) => {
-    localStorage.setItem("adultFavorites", JSON.stringify(favorites));
-  }, 500)).current;
-  const debouncedSetWatchlist = useRef(debounce((watchlist) => {
-    localStorage.setItem("adultWatchlist", JSON.stringify(watchlist));
-  }, 500)).current;
-  const debouncedSetPlaylists = useRef(debounce((playlists) => {
-    localStorage.setItem("adultPlaylists", JSON.stringify(playlists));
-  }, 500)).current;
-  const debouncedSetDownloadQueue = useRef(debounce((queue) => {
-    localStorage.setItem("adultDownloadQueue", JSON.stringify(queue));
-  }, 500)).current;
+  const debouncedSetFavorites = useRef(
+    debounce((favorites) => {
+      localStorage.setItem("adultFavorites", JSON.stringify(favorites));
+    }, 500)
+  ).current;
+  const debouncedSetWatchlist = useRef(
+    debounce((watchlist) => {
+      localStorage.setItem("adultWatchlist", JSON.stringify(watchlist));
+    }, 500)
+  ).current;
+  const debouncedSetPlaylists = useRef(
+    debounce((playlists) => {
+      localStorage.setItem("adultPlaylists", JSON.stringify(playlists));
+    }, 500)
+  ).current;
+  const debouncedSetDownloadQueue = useRef(
+    debounce((queue) => {
+      localStorage.setItem("adultDownloadQueue", JSON.stringify(queue));
+    }, 500)
+  ).current;
 
   // Use effects to call debounced writers
-  useEffect(() => { debouncedSetFavorites(favorites); }, [favorites]);
-  useEffect(() => { debouncedSetWatchlist(watchlist); }, [watchlist]);
-  useEffect(() => { debouncedSetPlaylists(playlists); }, [playlists]);
-  useEffect(() => { debouncedSetDownloadQueue(downloadQueue); }, [downloadQueue]);
+  useEffect(() => {
+    debouncedSetFavorites(favorites);
+  }, [favorites]);
+  useEffect(() => {
+    debouncedSetWatchlist(watchlist);
+  }, [watchlist]);
+  useEffect(() => {
+    debouncedSetPlaylists(playlists);
+  }, [playlists]);
+  useEffect(() => {
+    debouncedSetDownloadQueue(downloadQueue);
+  }, [downloadQueue]);
 
   // Save playlists to localStorage
   const savePlaylists = (newPlaylists) => {
@@ -1016,7 +1147,7 @@ const AdultSearchBar = () => {
   // Create new playlist
   const createPlaylist = (name) => {
     const safePlaylists = Array.isArray(playlists) ? playlists : [];
-    
+
     const newPlaylist = {
       id: Date.now().toString(),
       name: name,
@@ -1024,115 +1155,119 @@ const AdultSearchBar = () => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       description: "",
-      isPublic: false
+      isPublic: false,
     };
-    
+
     const updatedPlaylists = [...safePlaylists, newPlaylist];
     savePlaylists(updatedPlaylists);
     setCurrentPlaylist(newPlaylist);
     setPlaylistName("");
     setShowPlaylistModal(false);
-    
-    toast.success(t('playlist_created_successfully', { name: name }));
+
+    toast.success(t("playlist_created_successfully", { name: name }));
   };
 
   // Add video to playlist
   const addToPlaylist = (video, playlistId) => {
     const safePlaylists = Array.isArray(playlists) ? playlists : [];
-    
-    const updatedPlaylists = safePlaylists.map(playlist => {
+
+    const updatedPlaylists = safePlaylists.map((playlist) => {
       if (playlist.id === playlistId) {
         // Check if video already exists
-        const videoExists = playlist.videos.some(v => v.id === video.id);
+        const videoExists = playlist.videos.some((v) => v.id === video.id);
         if (videoExists) {
-          toast.info(t('video_already_in_playlist'));
+          toast.info(t("video_already_in_playlist"));
           return playlist;
         }
-        
+
         return {
           ...playlist,
           videos: [...playlist.videos, video],
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
         };
       }
       return playlist;
     });
-    
+
     savePlaylists(updatedPlaylists);
-    toast.success(t('video_added_to_playlist'));
+    toast.success(t("video_added_to_playlist"));
   };
 
   // Remove video from playlist
   const removeFromPlaylist = (videoId, playlistId) => {
     const safePlaylists = Array.isArray(playlists) ? playlists : [];
-    
-    const updatedPlaylists = safePlaylists.map(playlist => {
+
+    const updatedPlaylists = safePlaylists.map((playlist) => {
       if (playlist.id === playlistId) {
         return {
           ...playlist,
-          videos: playlist.videos.filter(v => v.id !== videoId),
-          updatedAt: new Date().toISOString()
+          videos: playlist.videos.filter((v) => v.id !== videoId),
+          updatedAt: new Date().toISOString(),
         };
       }
       return playlist;
     });
-    
+
     savePlaylists(updatedPlaylists);
-    toast.success(t('video_removed_from_playlist'));
+    toast.success(t("video_removed_from_playlist"));
   };
 
   // Delete playlist
   const deletePlaylist = (playlistId) => {
     const safePlaylists = Array.isArray(playlists) ? playlists : [];
-    
-    const updatedPlaylists = safePlaylists.filter(p => p.id !== playlistId);
+
+    const updatedPlaylists = safePlaylists.filter((p) => p.id !== playlistId);
     savePlaylists(updatedPlaylists);
-    
+
     if (currentPlaylist && currentPlaylist.id === playlistId) {
       setCurrentPlaylist(null);
     }
-    
-    toast.success(t('playlist_deleted_successfully'));
+
+    toast.success(t("playlist_deleted_successfully"));
   };
 
   // Playlist management component
   const renderPlaylistManager = () => {
     // Safety check to ensure playlists is always an array
     const safePlaylists = Array.isArray(playlists) ? playlists : [];
-    
+
     return (
       <div className="playlist-manager">
         <div className="playlist-header">
-          <h4>{t('my_playlists')}</h4>
+          <h4>{t("my_playlists")}</h4>
           <button
             className="create-playlist-btn"
             onClick={() => setShowPlaylistModal(true)}
           >
-            <span>+</span> {t('create_playlist')}
+            <span>+</span> {t("create_playlist")}
           </button>
         </div>
-        
+
         {safePlaylists.length === 0 ? (
           <div className="empty-playlists">
             <div className="empty-icon">📋</div>
-            <p>{t('no_playlists_yet_create_your_first_playlist')}</p>
+            <p>{t("no_playlists_yet_create_your_first_playlist")}</p>
           </div>
         ) : (
           <div className="playlists-grid">
-            {safePlaylists.map(playlist => (
+            {safePlaylists.map((playlist) => (
               <div
                 key={playlist.id}
-                className={`playlist-card ${currentPlaylist?.id === playlist.id ? 'active' : ''}`}
+                className={`playlist-card ${
+                  currentPlaylist?.id === playlist.id ? "active" : ""
+                }`}
                 onClick={() => setCurrentPlaylist(playlist)}
               >
                 <div className="playlist-info">
                   <h5>{playlist.name}</h5>
-                  <p>{playlist.videos.length} {t('videos')}</p>
+                  <p>
+                    {playlist.videos.length} {t("videos")}
+                  </p>
                   <span className="playlist-date">
                     {new Date(playlist.updatedAt).toLocaleDateString()}
                   </span>
                 </div>
-                
+
                 <div className="playlist-actions">
                   <button
                     className="playlist-action-btn"
@@ -1140,7 +1275,7 @@ const AdultSearchBar = () => {
                       e.stopPropagation();
                       deletePlaylist(playlist.id);
                     }}
-                    title={t('delete_playlist')}
+                    title={t("delete_playlist")}
                   >
                     🗑️
                   </button>
@@ -1149,16 +1284,18 @@ const AdultSearchBar = () => {
             ))}
           </div>
         )}
-        
+
         {currentPlaylist && (
           <div className="current-playlist">
-            <h5>{t('current_playlist')}: {currentPlaylist.name}</h5>
+            <h5>
+              {t("current_playlist")}: {currentPlaylist.name}
+            </h5>
             <div className="playlist-videos">
               {currentPlaylist.videos.length === 0 ? (
-                <p>{t('no_videos_in_this_playlist_yet')}</p>
+                <p>{t("no_videos_in_this_playlist_yet")}</p>
               ) : (
                 <div className="playlist-videos-grid">
-                  {currentPlaylist.videos.map(video => (
+                  {currentPlaylist.videos.map((video) => (
                     <div key={video.id} className="playlist-video-item">
                       <img src={video.thumbnail} alt={video.title} />
                       <div className="video-info">
@@ -1167,7 +1304,9 @@ const AdultSearchBar = () => {
                       </div>
                       <button
                         className="remove-video-btn"
-                        onClick={() => removeFromPlaylist(video.id, currentPlaylist.id)}
+                        onClick={() =>
+                          removeFromPlaylist(video.id, currentPlaylist.id)
+                        }
                       >
                         ×
                       </button>
@@ -1185,12 +1324,15 @@ const AdultSearchBar = () => {
   // Playlist modal
   const renderPlaylistModal = () => {
     if (!showPlaylistModal) return null;
-    
+
     return (
-      <div className="playlist-modal-overlay" onClick={() => setShowPlaylistModal(false)}>
+      <div
+        className="playlist-modal-overlay"
+        onClick={() => setShowPlaylistModal(false)}
+      >
         <div className="playlist-modal" onClick={(e) => e.stopPropagation()}>
           <div className="modal-header">
-            <h4>{t('create_new_playlist')}</h4>
+            <h4>{t("create_new_playlist")}</h4>
             <button
               className="close-modal-btn"
               onClick={() => setShowPlaylistModal(false)}
@@ -1198,25 +1340,25 @@ const AdultSearchBar = () => {
               ×
             </button>
           </div>
-          
+
           <div className="modal-content">
             <div className="input-group">
-              <label>{t('playlist_name')}:</label>
+              <label>{t("playlist_name")}:</label>
               <input
                 type="text"
                 value={playlistName}
                 onChange={(e) => setPlaylistName(e.target.value)}
-                placeholder={t('enter_playlist_name')}
+                placeholder={t("enter_playlist_name")}
                 maxLength={50}
               />
             </div>
-            
+
             <div className="modal-actions">
               <button
                 className="cancel-btn"
                 onClick={() => setShowPlaylistModal(false)}
               >
-                {t('cancel')}
+                {t("cancel")}
               </button>
               <button
                 className="create-btn"
@@ -1224,12 +1366,12 @@ const AdultSearchBar = () => {
                   if (playlistName.trim()) {
                     createPlaylist(playlistName.trim());
                   } else {
-                    toast.error(t('please_enter_a_playlist_name'));
+                    toast.error(t("please_enter_a_playlist_name"));
                   }
                 }}
                 disabled={!playlistName.trim()}
               >
-                {t('create_playlist')}
+                {t("create_playlist")}
               </button>
             </div>
           </div>
@@ -1242,9 +1384,9 @@ const AdultSearchBar = () => {
   const generateTrendingSearches = () => {
     const hour = new Date().getHours();
     const dayOfWeek = new Date().getDay();
-    
+
     let trending = [...popularSearches];
-    
+
     // Add time-based suggestions
     if (hour >= 22 || hour <= 6) {
       trending.unshift("night", "late night", "bedroom");
@@ -1255,14 +1397,14 @@ const AdultSearchBar = () => {
     } else {
       trending.unshift("evening", "dinner", "relax");
     }
-    
+
     // Add day-based suggestions
     if (dayOfWeek === 0 || dayOfWeek === 6) {
       trending.unshift("weekend", "party", "celebration");
     } else {
       trending.unshift("weekday", "stress relief", "quick");
     }
-    
+
     return trending.slice(0, 10);
   };
 
@@ -1274,33 +1416,36 @@ const AdultSearchBar = () => {
   // Generate search suggestions based on input
   const generateSearchSuggestions = (query) => {
     if (!query.trim()) return [];
-    
+
     const suggestions = [];
     const lowerQuery = query.toLowerCase();
-    
+
     // Add popular searches that match the query
-    popularSearches.forEach(term => {
+    popularSearches.forEach((term) => {
       if (term.includes(lowerQuery) && !suggestions.includes(term)) {
         suggestions.push(term);
       }
     });
-    
+
     // Add recent searches that match the query
-    recentSearches.forEach(term => {
-      if (term.toLowerCase().includes(lowerQuery) && !suggestions.includes(term)) {
+    recentSearches.forEach((term) => {
+      if (
+        term.toLowerCase().includes(lowerQuery) &&
+        !suggestions.includes(term)
+      ) {
         suggestions.push(term);
       }
     });
-    
+
     // Add query-based suggestions
-    if (lowerQuery.includes('anal')) {
-      suggestions.push('anal creampie', 'anal toys', 'anal training');
-    } else if (lowerQuery.includes('oral')) {
-      suggestions.push('blowjob', 'deepthroat', 'facial');
-    } else if (lowerQuery.includes('lesbian')) {
-      suggestions.push('lesbian toys', 'lesbian massage', 'lesbian orgasm');
+    if (lowerQuery.includes("anal")) {
+      suggestions.push("anal creampie", "anal toys", "anal training");
+    } else if (lowerQuery.includes("oral")) {
+      suggestions.push("blowjob", "deepthroat", "facial");
+    } else if (lowerQuery.includes("lesbian")) {
+      suggestions.push("lesbian toys", "lesbian massage", "lesbian orgasm");
     }
-    
+
     return suggestions.slice(0, 8);
   };
 
@@ -1317,47 +1462,53 @@ const AdultSearchBar = () => {
   // Search analytics dashboard component
   const renderSearchAnalytics = () => {
     if (searchAnalytics.totalSearches === 0) return null;
-    
+
     const topSearches = Array.from(searchAnalytics.popularTerms.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5);
-    
+
     return (
       <div className="search-analytics-dashboard">
         <div className="analytics-header">
-          <h4>{t('search_analytics')}</h4>
-          <span className="analytics-subtitle">{t('your_search_insights')}</span>
+          <h4>{t("search_analytics")}</h4>
+          <span className="analytics-subtitle">
+            {t("your_search_insights")}
+          </span>
         </div>
-        
+
         <div className="analytics-grid">
           <div className="analytics-card">
             <div className="analytics-icon">🔍</div>
             <div className="analytics-content">
-              <div className="analytics-value">{searchAnalytics.totalSearches}</div>
-              <div className="analytics-label">{t('total_searches')}</div>
+              <div className="analytics-value">
+                {searchAnalytics.totalSearches}
+              </div>
+              <div className="analytics-label">{t("total_searches")}</div>
             </div>
           </div>
-          
+
           <div className="analytics-card">
             <div className="analytics-icon">📊</div>
             <div className="analytics-content">
-              <div className="analytics-value">{searchAnalytics.averageResults}</div>
-              <div className="analytics-label">{t('avg_results')}</div>
+              <div className="analytics-value">
+                {searchAnalytics.averageResults}
+              </div>
+              <div className="analytics-label">{t("avg_results")}</div>
             </div>
           </div>
-          
+
           <div className="analytics-card">
             <div className="analytics-icon">⚡</div>
             <div className="analytics-content">
               <div className="analytics-value">{searchCache.size}</div>
-              <div className="analytics-label">{t('cached_results')}</div>
+              <div className="analytics-label">{t("cached_results")}</div>
             </div>
           </div>
         </div>
-        
+
         {topSearches.length > 0 && (
           <div className="top-searches">
-            <h5>{t('top_searches')}</h5>
+            <h5>{t("top_searches")}</h5>
             <div className="top-searches-list">
               {topSearches.map(([term, count], index) => (
                 <button
@@ -1370,7 +1521,9 @@ const AdultSearchBar = () => {
                 >
                   <span className="search-rank">#{index + 1}</span>
                   <span className="search-term">{term}</span>
-                  <span className="search-count">{count} {t('searches')}</span>
+                  <span className="search-count">
+                    {count} {t("searches")}
+                  </span>
                 </button>
               ))}
             </div>
@@ -1383,90 +1536,92 @@ const AdultSearchBar = () => {
   // Smart recommendations system
   const generateSmartRecommendations = () => {
     const recommendations = [];
-    
+
     // Based on search history
     if (searchHistory.length > 0) {
       const recentSearches = searchHistory.slice(0, 3);
       recommendations.push({
-        type: 'recent',
-        title: t('recent_searches'),
-        items: recentSearches.map(term => ({
+        type: "recent",
+        title: t("recent_searches"),
+        items: recentSearches.map((term) => ({
           text: term,
-          icon: '',
+          icon: "",
           action: () => {
             setSearchQuery(term);
             debouncedSearch(term);
-          }
-        }))
+          },
+        })),
       });
     }
-    
+
     // Based on popular terms
     if (searchAnalytics.popularTerms.size > 0) {
       const popularTerms = Array.from(searchAnalytics.popularTerms.entries())
         .sort((a, b) => b[1] - a[1])
         .slice(0, 3)
         .map(([term]) => term);
-      
+
       recommendations.push({
-        type: 'popular',
-        title: t('popular_searches'),
-        items: popularTerms.map(term => ({
+        type: "popular",
+        title: t("popular_searches"),
+        items: popularTerms.map((term) => ({
           text: term,
-          icon: '🔥',
+          icon: "🔥",
           action: () => {
             setSearchQuery(term);
             debouncedSearch(term);
-          }
-        }))
+          },
+        })),
       });
     }
-    
+
     // Based on time of day
     const hour = new Date().getHours();
     let timeBasedSuggestions = [];
-    
+
     if (hour >= 22 || hour <= 6) {
-      timeBasedSuggestions = ['night', 'bedroom', 'late night'];
+      timeBasedSuggestions = ["night", "bedroom", "late night"];
     } else if (hour >= 7 && hour <= 12) {
-      timeBasedSuggestions = ['morning', 'breakfast', 'wake up'];
+      timeBasedSuggestions = ["morning", "breakfast", "wake up"];
     } else if (hour >= 13 && hour <= 17) {
-      timeBasedSuggestions = ['afternoon', 'lunch', 'work'];
+      timeBasedSuggestions = ["afternoon", "lunch", "work"];
     } else {
-      timeBasedSuggestions = ['evening', 'dinner', 'relax'];
+      timeBasedSuggestions = ["evening", "dinner", "relax"];
     }
-    
+
     recommendations.push({
-      type: 'time',
-      title: t('time_based_suggestions'),
-      items: timeBasedSuggestions.map(term => ({
+      type: "time",
+      title: t("time_based_suggestions"),
+      items: timeBasedSuggestions.map((term) => ({
         text: term,
-        icon: '⏰',
+        icon: "⏰",
         action: () => {
           setSearchQuery(term);
           debouncedSearch(term);
-        }
-      }))
+        },
+      })),
     });
-    
+
     return recommendations;
   };
 
   // Render smart recommendations
   const renderSmartRecommendations = () => {
     const recommendations = generateSmartRecommendations();
-    
+
     if (recommendations.length === 0) return null;
-    
+
     return (
       <div className="smart-recommendations">
         <div className="recommendations-header">
-          <h4>{t('smart_recommendations')}</h4>
-          <span className="recommendations-subtitle">{t('personalized_for_you')}</span>
+          <h4>{t("smart_recommendations")}</h4>
+          <span className="recommendations-subtitle">
+            {t("personalized_for_you")}
+          </span>
         </div>
-        
+
         <div className="recommendations-grid">
-          {recommendations.map((section, index) => (
+          {recommendations.map((section) => (
             <div key={section.type} className="recommendation-section">
               <h5 className="section-title">{section.title}</h5>
               <div className="recommendation-items">
@@ -1502,12 +1657,12 @@ const AdultSearchBar = () => {
   }, [playlists]);
 
   // Add this function near other playlist handlers
-  const handleCreatePlaylist = () => {
+  const _handleCreatePlaylist = () => {
     if (newPlaylistName.trim()) {
       createPlaylist(newPlaylistName.trim());
       setNewPlaylistName("");
     } else {
-      toast.error(t('please_enter_a_playlist_name'));
+      toast.error(t("please_enter_a_playlist_name"));
     }
   };
 
@@ -1521,9 +1676,10 @@ const AdultSearchBar = () => {
 
   // Clean up null/invalid entries from favorites, watchlist, and history after loading
   useEffect(() => {
-    const clean = (arr) => Array.isArray(arr) ? arr.filter(
-      (item) => item && typeof item === 'object' && item.id
-    ) : [];
+    const clean = (arr) =>
+      Array.isArray(arr)
+        ? arr.filter((item) => item && typeof item === "object" && item.id)
+        : [];
     const cleanedFavorites = clean(favorites);
     const cleanedWatchlist = clean(watchlist);
     const cleanedHistory = clean(history);
@@ -1541,17 +1697,17 @@ const AdultSearchBar = () => {
     }
   }, []);
 
-  const handleRenamePlaylist = (playlistId, currentName) => {
+  const _handleRenamePlaylist = (playlistId, currentName) => {
     setShowRenameModal(true);
     setEditingPlaylistId(playlistId);
     setEditingPlaylistName(currentName);
   };
 
   const renamePlaylist = (playlistId, newName) => {
-    setPlaylists(prev =>
-      prev.map(p => (p.id === playlistId ? { ...p, name: newName } : p))
+    setPlaylists((prev) =>
+      prev.map((p) => (p.id === playlistId ? { ...p, name: newName } : p))
     );
-    toast.success(t('playlist_renamed_successfully'));
+    toast.success(t("playlist_renamed_successfully"));
   };
 
   const handleConfirmRename = () => {
@@ -1563,10 +1719,7 @@ const AdultSearchBar = () => {
 
   return (
     <PinLock sectionName="Adult Search" isVideoPlaying={!!selectedVideo}>
-      <div
-        className="adult-search-container"
-        ref={containerRef}
-      >
+      <div className="adult-search-container" ref={containerRef}>
         <SearchInput
           searchQuery={searchQuery}
           onSearchChange={handleSearchChange}
@@ -1578,22 +1731,25 @@ const AdultSearchBar = () => {
           onBlur={handleInputBlur}
           onKeyDown={handleInputKeyDown}
           inputRef={searchInputRef}
-          placeholder={t('search_adult_videos')}
+          placeholder={t("search_adult_videos")}
         />
-        
+
         {/* Search Statistics */}
         {searchStats.totalResults > 0 && (
           <div className="search-stats">
             <span className="stats-text">
-              {t('found_videos_in_ms', { count: searchStats.totalResults, time: searchStats.searchTime })}
+              {t("found_videos_in_ms", {
+                count: searchStats.totalResults,
+                time: searchStats.searchTime,
+              })}
             </span>
           </div>
         )}
-        
+
         {/* Trending Searches */}
         {!searchQuery.trim() && !loading && (
           <div className="trending-searches">
-            <h4>{t('trending_searches')}</h4>
+            <h4>{t("trending_searches")}</h4>
             <div className="trending-tags">
               {trendingSearches.map((term, index) => (
                 <button
@@ -1611,7 +1767,7 @@ const AdultSearchBar = () => {
             </div>
           </div>
         )}
-        
+
         {renderAdvancedFilters()}
         {renderFilters()}
         <div className="tabs">
@@ -1619,125 +1775,151 @@ const AdultSearchBar = () => {
             type="button"
             className={tab === "all" ? "active" : ""}
             onClick={() => {
-              console.log('Tab clicked: all');
+              console.log("Tab clicked: all");
               setTab("all");
             }}
           >
-            {t('all') || 'All'}
+            {t("all") || "All"}
           </button>
           <button
             type="button"
             className={tab === "favorites" ? "active" : ""}
             onClick={() => {
-              console.log('Tab clicked: favorites');
+              console.log("Tab clicked: favorites");
               setTab("favorites");
             }}
           >
-            {t('favorites') || 'Favorites'}
+            {t("favorites") || "Favorites"}
           </button>
           <button
             type="button"
             className={tab === "watchlist" ? "active" : ""}
             onClick={() => {
-              console.log('Tab clicked: watchlist');
+              console.log("Tab clicked: watchlist");
               setTab("watchlist");
             }}
           >
-            {t('watchlist') || 'Watchlist'}
+            {t("watchlist") || "Watchlist"}
           </button>
           <button
             type="button"
             className={tab === "history" ? "active" : ""}
             onClick={() => {
-              console.log('Tab clicked: history');
+              console.log("Tab clicked: history");
               setTab("history");
             }}
           >
-            {t('recently_watched') || 'Recently Watched'}
+            {t("recently_watched") || "Recently Watched"}
           </button>
           <button
             type="button"
             className={tab === "playlists" ? "active" : ""}
             onClick={() => {
-              console.log('Tab clicked: playlists');
+              console.log("Tab clicked: playlists");
               setTab("playlists");
             }}
           >
-            {t('playlists') || 'Playlists'}
+            {t("playlists") || "Playlists"}
           </button>
           <button
             type="button"
             className={tab === "downloads" ? "active" : ""}
             onClick={() => {
-              console.log('Tab clicked: downloads');
+              console.log("Tab clicked: downloads");
               setTab("downloads");
             }}
           >
-            {t('download_queue') || 'Download Queue'}
+            {t("download_queue") || "Download Queue"}
           </button>
         </div>
         {tab === "all" && allCategories.length > 1 && (
           <div className="category-filter-bar">
             <div className="category-filter-header">
-              <h4>{t('filter_by_category')}</h4>
-              <span className="category-count">({allCategories.length} {t('categories')})</span>
+              <h4>{t("filter_by_category")}</h4>
+              <span className="category-count">
+                ({allCategories.length} {t("categories")})
+              </span>
             </div>
             <div className="category-buttons">
-            <button
+              <button
                 type="button"
                 className={`category-btn ${!categoryFilter ? "active" : ""}`}
-              onClick={() => setCategoryFilter("")}
-                title={t('show_all_categories')}
-            >
-                <span className="category-icon">🎬</span>
-                <span className="category-text">{t('all')}</span>
-            </button>
-            {allCategories.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                className={`category-btn ${categoryFilter === cat ? "active" : ""}`}
-                onClick={() => setCategoryFilter(cat)}
-                title={t('filter_by') + `: ${cat}`}
+                onClick={() => setCategoryFilter("")}
+                title={t("show_all_categories")}
               >
-                <span className="category-icon">
-                  {cat === 'amateur' ? '📱' : 
-                   cat === 'anal' ? '🍑' : 
-                   cat === 'blowjob' ? '💋' : 
-                   cat === 'creampie' ? '💦' : 
-                   cat === 'cumshot' ? '💧' : 
-                   cat === 'deepthroat' ? '👅' : 
-                   cat === 'facial' ? '🎭' : 
-                   cat === 'gangbang' ? '👥' : 
-                   cat === 'hardcore' ? '🔥' : 
-                   cat === 'lesbian' ? '👭' : 
-                   cat === 'massage' ? '💆' : 
-                   cat === 'masturbation' ? '✋' : 
-                   cat === 'oral' ? '👄' : 
-                   cat === 'pov' ? '📹' : 
-                   cat === 'rough' ? '⚡' : 
-                   cat === 'threesome' ? '👨‍👩‍👧' : 
-                   cat === 'toys' ? '🔌' : 
-                   cat === 'vintage' ? '📼' : 
-                   cat === 'young' ? '🌸' : '🎯'}
-                </span>
-                <span className="category-text">{cat}</span>
-                {categoryFilter === cat && (
-                  <span className="active-indicator">✓</span>
-                )}
+                <span className="category-icon">🎬</span>
+                <span className="category-text">{t("all")}</span>
               </button>
-            ))}
+              {allCategories.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  className={`category-btn ${
+                    categoryFilter === cat ? "active" : ""
+                  }`}
+                  onClick={() => setCategoryFilter(cat)}
+                  title={t("filter_by") + `: ${cat}`}
+                >
+                  <span className="category-icon">
+                    {cat === "amateur"
+                      ? "📱"
+                      : cat === "anal"
+                      ? "🍑"
+                      : cat === "blowjob"
+                      ? "💋"
+                      : cat === "creampie"
+                      ? "💦"
+                      : cat === "cumshot"
+                      ? "💧"
+                      : cat === "deepthroat"
+                      ? "👅"
+                      : cat === "facial"
+                      ? "🎭"
+                      : cat === "gangbang"
+                      ? "👥"
+                      : cat === "hardcore"
+                      ? "🔥"
+                      : cat === "lesbian"
+                      ? "👭"
+                      : cat === "massage"
+                      ? "💆"
+                      : cat === "masturbation"
+                      ? "✋"
+                      : cat === "oral"
+                      ? "👄"
+                      : cat === "pov"
+                      ? "📹"
+                      : cat === "rough"
+                      ? "⚡"
+                      : cat === "threesome"
+                      ? "👨‍👩‍👧"
+                      : cat === "toys"
+                      ? "🔌"
+                      : cat === "vintage"
+                      ? "📼"
+                      : cat === "young"
+                      ? "🌸"
+                      : "🎯"}
+                  </span>
+                  <span className="category-text">{cat}</span>
+                  {categoryFilter === cat && (
+                    <span className="active-indicator">✓</span>
+                  )}
+                </button>
+              ))}
             </div>
             {categoryFilter && (
               <div className="category-filter-info">
-                <span>{t('filtering_by')} <strong>{categoryFilter}</strong></span>
+                <span>
+                  {t("filtering_by")} <strong>{categoryFilter}</strong>
+                </span>
                 <button
                   type="button"
                   className="clear-category-btn"
                   onClick={() => setCategoryFilter("")}
-                  title={t('clear_category_filter')}
+                  title={t("clear_category_filter")}
                 >
-                  ✕ {t('clear')}
+                  ✕ {t("clear")}
                 </button>
               </div>
             )}
@@ -1802,7 +1984,7 @@ const AdultSearchBar = () => {
         )}
         {tab === "all" && recommendedResults.length > 0 && (
           <div className="recommended-section fade-slide">
-            <h3>{t('recommended_for_you')}</h3>
+            <h3>{t("recommended_for_you")}</h3>
             <ResultsGrid
               searchResults={recommendedResults}
               onVideoSelect={handleVideoSelect}
@@ -1832,14 +2014,12 @@ const AdultSearchBar = () => {
           </div>
         )}
         {tab === "playlists" && (
-          <div className="fade-slide">
-            {renderPlaylistManager()}
-          </div>
+          <div className="fade-slide">{renderPlaylistManager()}</div>
         )}
         {tab === "downloads" && (
           <div className="fade-slide">
             <div className="download-queue-panel">
-              <h4>{t('download_queue')}</h4>
+              <h4>{t("download_queue")}</h4>
               <ResultsGrid
                 searchResults={downloadQueue}
                 onVideoSelect={handleVideoSelect}
@@ -1867,8 +2047,10 @@ const AdultSearchBar = () => {
           />
         )}
         {isFetchingMore && (
-          <div style={{ textAlign: "center", color: "#ff3333", margin: "20px" }}>
-            {t('loading_more')}
+          <div
+            style={{ textAlign: "center", color: "#ff3333", margin: "20px" }}
+          >
+            {t("loading_more")}
           </div>
         )}
         {renderSearchAnalytics()}

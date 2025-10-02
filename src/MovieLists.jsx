@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 
 function MovieLists() {
   const { t } = useTranslation();
@@ -23,7 +23,15 @@ function MovieLists() {
       toast.error("List name already exists!");
       return;
     }
-    const updated = [...lists, { name: newList.trim(), movies: [], favorite: false, createdAt: Date.now() }];
+    const updated = [
+      ...lists,
+      {
+        name: newList.trim(),
+        movies: [],
+        favorite: false,
+        createdAt: Date.now(),
+      },
+    ];
     setLists(updated);
     localStorage.setItem("movieLists", JSON.stringify(updated));
     setNewList("");
@@ -57,7 +65,10 @@ function MovieLists() {
 
   // Add a movie to a list
   const addMovieToList = (index, movie) => {
-    const asTitle = typeof movie === 'string' ? movie : (movie?.title || movie?.name || '').toString();
+    const asTitle =
+      typeof movie === "string"
+        ? movie
+        : (movie?.title || movie?.name || "").toString();
     if (!asTitle.trim()) {
       toast.error("Please provide a movie title");
       return;
@@ -65,7 +76,7 @@ function MovieLists() {
     const updated = lists.map((l, i) => {
       if (i !== index) return l;
       const exists = l.movies.some((m) => {
-        const mt = typeof m === 'string' ? m : (m?.title || m?.name || '');
+        const mt = typeof m === "string" ? m : m?.title || m?.name || "";
         return mt.trim().toLowerCase() === asTitle.trim().toLowerCase();
       });
       if (exists) {
@@ -91,7 +102,9 @@ function MovieLists() {
 
   // Clear all movies from a list
   const clearList = (index) => {
-    const updated = lists.map((l, i) => i === index ? { ...l, movies: [] } : l);
+    const updated = lists.map((l, i) =>
+      i === index ? { ...l, movies: [] } : l
+    );
     setLists(updated);
     localStorage.setItem("movieLists", JSON.stringify(updated));
   };
@@ -101,19 +114,24 @@ function MovieLists() {
     const base = lists[index];
     if (!base) return;
     let name = `${base.name} Copy`;
-    const names = new Set(lists.map(l => l.name.toLowerCase()));
+    const names = new Set(lists.map((l) => l.name.toLowerCase()));
     let suffix = 2;
     while (names.has(name.toLowerCase())) {
       name = `${base.name} Copy ${suffix++}`;
     }
-    const updated = [...lists, { ...base, name, favorite: false, createdAt: Date.now() }];
+    const updated = [
+      ...lists,
+      { ...base, name, favorite: false, createdAt: Date.now() },
+    ];
     setLists(updated);
     localStorage.setItem("movieLists", JSON.stringify(updated));
   };
 
   // Toggle favorite on a list
   const toggleFavorite = (index) => {
-    const updated = lists.map((l, i) => i === index ? { ...l, favorite: !l.favorite } : l);
+    const updated = lists.map((l, i) =>
+      i === index ? { ...l, favorite: !l.favorite } : l
+    );
     setLists(updated);
     localStorage.setItem("movieLists", JSON.stringify(updated));
   };
@@ -127,18 +145,22 @@ function MovieLists() {
     const newMovies = [...target.movies];
     const [m] = newMovies.splice(movieIndex, 1);
     newMovies.splice(newIndex, 0, m);
-    const updated = lists.map((l, i) => i === listIndex ? { ...l, movies: newMovies } : l);
+    const updated = lists.map((l, i) =>
+      i === listIndex ? { ...l, movies: newMovies } : l
+    );
     setLists(updated);
     localStorage.setItem("movieLists", JSON.stringify(updated));
   };
 
   // Export all lists to JSON
   const exportLists = () => {
-    const blob = new Blob([JSON.stringify(lists, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(lists, null, 2)], {
+      type: "application/json",
+    });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'movieLists.json';
+    a.download = "movieLists.json";
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -148,49 +170,58 @@ function MovieLists() {
     try {
       const text = await file.text();
       const data = JSON.parse(text);
-      if (!Array.isArray(data)) throw new Error('Invalid format');
+      if (!Array.isArray(data)) throw new Error("Invalid format");
       const sanitized = data.map((l) => ({
-        name: (l?.name || '').toString().trim() || 'Untitled',
+        name: (l?.name || "").toString().trim() || "Untitled",
         movies: Array.isArray(l?.movies) ? l.movies : [],
         favorite: !!l?.favorite,
         createdAt: l?.createdAt || Date.now(),
       }));
       setLists(sanitized);
       localStorage.setItem("movieLists", JSON.stringify(sanitized));
-      toast.success('Lists imported');
-    } catch (e) {
-      toast.error('Failed to import lists');
+      toast.success("Lists imported");
+    } catch {
+      toast.error("Failed to import lists");
     }
   };
 
   const filteredAndSortedLists = useMemo(() => {
     const ft = filterText.trim().toLowerCase();
-    let arr = lists.filter(l => !ft || l.name.toLowerCase().includes(ft));
+    let arr = lists.filter((l) => !ft || l.name.toLowerCase().includes(ft));
     switch (listSort) {
-      case 'nameAsc':
-        arr.sort((a,b) => a.name.localeCompare(b.name));
+      case "nameAsc":
+        arr.sort((a, b) => a.name.localeCompare(b.name));
         break;
-      case 'nameDesc':
-        arr.sort((a,b) => b.name.localeCompare(a.name));
+      case "nameDesc":
+        arr.sort((a, b) => b.name.localeCompare(a.name));
         break;
-      case 'sizeDesc':
-        arr.sort((a,b) => (b.movies?.length||0) - (a.movies?.length||0));
+      case "sizeDesc":
+        arr.sort((a, b) => (b.movies?.length || 0) - (a.movies?.length || 0));
         break;
-      case 'favoritesFirst':
+      case "favoritesFirst":
       default:
-        arr.sort((a,b) => (b.favorite === a.favorite) ? a.name.localeCompare(b.name) : (b.favorite ? 1 : -1));
+        arr.sort((a, b) =>
+          b.favorite === a.favorite
+            ? a.name.localeCompare(b.name)
+            : b.favorite
+            ? 1
+            : -1
+        );
         break;
     }
     return arr;
   }, [lists, filterText, listSort]);
 
   const sortMovies = (movies) => {
-    if (movieSort === 'titleAsc') return [...movies].sort((a,b) => (getTitle(a)).localeCompare(getTitle(b)));
-    if (movieSort === 'titleDesc') return [...movies].sort((a,b) => (getTitle(b)).localeCompare(getTitle(a)));
+    if (movieSort === "titleAsc")
+      return [...movies].sort((a, b) => getTitle(a).localeCompare(getTitle(b)));
+    if (movieSort === "titleDesc")
+      return [...movies].sort((a, b) => getTitle(b).localeCompare(getTitle(a)));
     return movies; // added order
   };
 
-  const getTitle = (m) => (typeof m === 'string' ? m : (m?.title || m?.name || ''));
+  const getTitle = (m) =>
+    typeof m === "string" ? m : m?.title || m?.name || "";
 
   return (
     <section className="movie-lists-section">
@@ -208,7 +239,11 @@ function MovieLists() {
           }}
           aria-label="New list name"
         />
-        <button className="ml-btn primary" onClick={addList} disabled={!newList.trim()}>
+        <button
+          className="ml-btn primary"
+          onClick={addList}
+          disabled={!newList.trim()}
+        >
           Add List
         </button>
         <input
@@ -217,24 +252,47 @@ function MovieLists() {
           placeholder="Filter lists"
           aria-label="Filter lists"
         />
-        <select className="ml-select" value={listSort} onChange={(e) => setListSort(e.target.value)} aria-label="Sort lists">
+        <select
+          className="ml-select"
+          value={listSort}
+          onChange={(e) => setListSort(e.target.value)}
+          aria-label="Sort lists"
+        >
           <option value="favoritesFirst">Favorites first</option>
           <option value="nameAsc">Name A–Z</option>
           <option value="nameDesc">Name Z–A</option>
           <option value="sizeDesc">Most movies</option>
         </select>
-        <select className="ml-select" value={movieSort} onChange={(e) => setMovieSort(e.target.value)} aria-label="Sort movies in a list">
+        <select
+          className="ml-select"
+          value={movieSort}
+          onChange={(e) => setMovieSort(e.target.value)}
+          aria-label="Sort movies in a list"
+        >
           <option value="added">By added order</option>
           <option value="titleAsc">Title A–Z</option>
           <option value="titleDesc">Title Z–A</option>
         </select>
-        <button className="ml-btn" onClick={exportLists}>Export</button>
-        <button className="ml-btn" onClick={() => fileInputRef.current?.click()}>Import</button>
-        <input ref={fileInputRef} type="file" accept="application/json" style={{ display: 'none' }} onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) importLists(file);
-          e.target.value = '';
-        }} />
+        <button className="ml-btn" onClick={exportLists}>
+          Export
+        </button>
+        <button
+          className="ml-btn"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          Import
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/json"
+          style={{ display: "none" }}
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) importLists(file);
+            e.target.value = "";
+          }}
+        />
       </div>
       <ul className="ml-lists">
         {filteredAndSortedLists.length === 0 ? (
@@ -259,7 +317,8 @@ function MovieLists() {
                     }}
                     autoFocus
                   />
-                  <button className="ml-btn primary"
+                  <button
+                    className="ml-btn primary"
                     onClick={() => {
                       renameList(i, renameValue);
                       setRenamingIndex(null);
@@ -267,7 +326,12 @@ function MovieLists() {
                   >
                     Save
                   </button>
-                  <button className="ml-btn" onClick={() => setRenamingIndex(null)}>Cancel</button>
+                  <button
+                    className="ml-btn"
+                    onClick={() => setRenamingIndex(null)}
+                  >
+                    Cancel
+                  </button>
                 </>
               ) : (
                 <>
@@ -276,36 +340,41 @@ function MovieLists() {
                     <span className="ml-count">{l.movies.length} movies</span>
                   </div>
                   <div className="ml-actions">
-                  <button className="ml-icon-btn"
-                    onClick={() => toggleFavorite(lists.indexOf(l))}
-                    aria-pressed={!!l.favorite}
-                    title={l.favorite ? 'Unfavorite' : 'Favorite'}
-                  >
-                    {l.favorite ? '★' : '☆'}
-                  </button>
-                  <button className="ml-btn"
-                    onClick={() => {
-                      setRenamingIndex(i);
-                      setRenameValue(l.name);
-                    }}
-                  >
-                    Rename
-                  </button>
-                  <button className="ml-btn danger"
-                    onClick={() => removeList(lists.indexOf(l))}
-                  >
-                    Delete
-                  </button>
-                  <button className="ml-btn"
-                    onClick={() => duplicateList(lists.indexOf(l))}
-                  >
-                    Duplicate
-                  </button>
-                  <button className="ml-btn"
-                    onClick={() => clearList(lists.indexOf(l))}
-                  >
-                    Clear Movies
-                  </button>
+                    <button
+                      className="ml-icon-btn"
+                      onClick={() => toggleFavorite(lists.indexOf(l))}
+                      aria-pressed={!!l.favorite}
+                      title={l.favorite ? "Unfavorite" : "Favorite"}
+                    >
+                      {l.favorite ? "★" : "☆"}
+                    </button>
+                    <button
+                      className="ml-btn"
+                      onClick={() => {
+                        setRenamingIndex(i);
+                        setRenameValue(l.name);
+                      }}
+                    >
+                      Rename
+                    </button>
+                    <button
+                      className="ml-btn danger"
+                      onClick={() => removeList(lists.indexOf(l))}
+                    >
+                      Delete
+                    </button>
+                    <button
+                      className="ml-btn"
+                      onClick={() => duplicateList(lists.indexOf(l))}
+                    >
+                      Duplicate
+                    </button>
+                    <button
+                      className="ml-btn"
+                      onClick={() => clearList(lists.indexOf(l))}
+                    >
+                      Clear Movies
+                    </button>
                   </div>
                 </>
               )}
@@ -335,7 +404,9 @@ function MovieLists() {
                       </button>
                       <button
                         className="ml-icon-btn danger"
-                        onClick={() => removeMovieFromList(lists.indexOf(l), mi)}
+                        onClick={() =>
+                          removeMovieFromList(lists.indexOf(l), mi)
+                        }
                       >
                         Remove
                       </button>

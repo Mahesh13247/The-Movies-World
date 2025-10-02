@@ -1,4 +1,4 @@
-import {
+import React, {
   useState,
   useEffect,
   useRef,
@@ -8,6 +8,8 @@ import {
 } from "react";
 import "./App.css";
 import "./i18n";
+import { config } from "./config";
+import { withErrorHandler, AppError, ERROR_TYPES } from "./utils/errorHandler";
 import debounce from "lodash.debounce";
 import {
   FaHeart,
@@ -28,26 +30,19 @@ import {
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useTranslation } from "react-i18next";
-import AnimatedBackground from "./AnimatedBackground";
-import ThemeCustomizer from "./ThemeCustomizer";
-import AdminPanel from "./AdminPanel";
-import MovieLists from "./MovieLists";
-import ExternalLinks from "./components/ExternalLinks";
-import AdultSearchBar from "./components/AdultSearchBar";
+// Lazy load heavy components
+const AdminPanelPage = React.lazy(() => import("./AdminPanelPage"));
+const ThemePage = React.lazy(() => import("./ThemePage"));
+const AnimatedBgPage = React.lazy(() => import("./AnimatedBgPage"));
+const MovieListsPage = React.lazy(() => import("./MovieListsPage"));
+const AdultSectionPage = React.lazy(() => import("./AdultSectionPage"));
+
+// Regular imports for core components
 import ErrorBoundary from "./components/ErrorBoundary";
 import LogoAnimation from "./components/LogoAnimation";
 import PinLock from "./components/PinLock";
-import AppHeader from "./components/AppHeader";
-import TrendingCarousel from "./components/TrendingCarousel";
-import MoviesGrid from "./components/MoviesGrid";
-import MoviePlayerSection from "./components/MoviePlayerSection";
 import { useAppContext } from "./context/AppContext";
 import HomePage from "./HomePage";
-import AdminPanelPage from "./AdminPanelPage";
-import ThemePage from "./ThemePage";
-import AnimatedBgPage from "./AnimatedBgPage";
-import MovieListsPage from "./MovieListsPage";
-import AdultSectionPage from "./AdultSectionPage";
 
 // Loading component
 const LoadingSpinner = () => (
@@ -57,8 +52,8 @@ const LoadingSpinner = () => (
 );
 
 export default function App() {
-  const API_KEY = import.meta.env.VITE_API_KEY;
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const API_KEY = config.api.key;
+  const BASE_URL = config.api.baseUrl;
   const { t, i18n } = useTranslation();
   // Use context for global state
   const {
@@ -182,17 +177,23 @@ export default function App() {
   // Optimize API calls with error handling
   const fetchWithErrorHandling = useCallback(
     async (url) => {
-      try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+      return withErrorHandler(
+        async () => {
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new AppError(
+              `API request failed: ${response.status} ${response.statusText}`,
+              ERROR_TYPES.API,
+              response.status >= 500 ? "HIGH" : "MEDIUM"
+            );
+          }
+          return await response.json();
+        },
+        {
+          customMessage: t("Error fetching data"),
+          context: { url, operation: "API fetch" },
         }
-        return await response.json();
-      } catch (error) {
-        console.error("API Error:", error);
-        toast.error(t("Error fetching data"));
-        return null;
-      }
+      );
     },
     [t]
   );
@@ -221,7 +222,7 @@ export default function App() {
         } finally {
           setLoading(false);
         }
-      }, 300),
+      }, config.performance.searchDebounceDelay),
     [API_KEY, BASE_URL, selectedGenre, searchInput, fetchWithErrorHandling, t]
   );
 
@@ -229,7 +230,8 @@ export default function App() {
   const handleScroll = useCallback(() => {
     if (
       window.innerHeight + document.documentElement.scrollTop >=
-        document.documentElement.offsetHeight - 200 &&
+        document.documentElement.offsetHeight -
+          config.performance.infiniteScrollThreshold &&
       !loading &&
       hasMore
     ) {
@@ -298,7 +300,9 @@ export default function App() {
         const pagesToFetch = [1, 2, 3]; // fetch first 3 pages (~60 items)
         const responses = await Promise.all(
           pagesToFetch.map((p) =>
-            fetch(`${BASE_URL}/trending/movie/week?api_key=${API_KEY}&page=${p}`)
+            fetch(
+              `${BASE_URL}/trending/movie/week?api_key=${API_KEY}&page=${p}`
+            )
           )
         );
         const bad = responses.find((r) => !r.ok);
@@ -327,7 +331,6 @@ export default function App() {
     fetchTrendingPages();
   }, [BASE_URL, API_KEY, t]);
 
-
   const fetchTrailer = async (movieId) => {
     try {
       setTrailerUrl("");
@@ -348,7 +351,12 @@ export default function App() {
     }
   };
 
-  const saveWatchedToHistory = (movieId, movieTitle, releaseDate, posterPath) => {
+  const saveWatchedToHistory = (
+    movieId,
+    movieTitle,
+    releaseDate,
+    posterPath
+  ) => {
     try {
       const raw = localStorage.getItem("movieLists");
       const lists = raw ? JSON.parse(raw) : [];
@@ -360,10 +368,18 @@ export default function App() {
         poster_path: posterPath || null,
         watchedAt: new Date().toISOString(),
       };
-      const findIndexByName = (arr, name) => arr.findIndex((l) => (l?.name || "").toLowerCase() === name.toLowerCase());
+      const findIndexByName = (arr, name) =>
+        arr.findIndex(
+          (l) => (l?.name || "").toLowerCase() === name.toLowerCase()
+        );
       let idx = findIndexByName(lists, "History");
       if (idx === -1) {
-        lists.push({ name: "History", movies: [], favorite: false, createdAt: Date.now() });
+        lists.push({
+          name: "History",
+          movies: [],
+          favorite: false,
+          createdAt: Date.now(),
+        });
         idx = lists.length - 1;
       }
       const list = lists[idx];
@@ -371,14 +387,14 @@ export default function App() {
       // De-duplicate by title (case-insensitive); remove any previous entry of same title
       const norm = title.trim().toLowerCase();
       const filtered = movies.filter((m) => {
-        const mt = typeof m === 'string' ? m : (m?.title || m?.name || "");
+        const mt = typeof m === "string" ? m : m?.title || m?.name || "";
         return mt.trim().toLowerCase() !== norm;
       });
       // Prepend most-recent first; cap history length
       const capped = [item, ...filtered].slice(0, 200);
       lists[idx] = { ...list, movies: capped };
       localStorage.setItem("movieLists", JSON.stringify(lists));
-    } catch (e) {
+    } catch {
       // fail silently; history is a non-critical feature
     }
   };
@@ -723,13 +739,31 @@ export default function App() {
               <FaLock />
             </button>
           </nav>
-          {activePage === "admin" && <AdminPanelPage t={t} />}
-          {activePage === "theme" && <ThemePage t={t} />}
-          {activePage === "animatedbg" && <AnimatedBgPage t={t} />}
-          {activePage === "lists" && <MovieListsPage t={t} />}
+          {activePage === "admin" && (
+            <Suspense fallback={<LoadingSpinner />}>
+              <AdminPanelPage t={t} />
+            </Suspense>
+          )}
+          {activePage === "theme" && (
+            <Suspense fallback={<LoadingSpinner />}>
+              <ThemePage t={t} />
+            </Suspense>
+          )}
+          {activePage === "animatedbg" && (
+            <Suspense fallback={<LoadingSpinner />}>
+              <AnimatedBgPage t={t} />
+            </Suspense>
+          )}
+          {activePage === "lists" && (
+            <Suspense fallback={<LoadingSpinner />}>
+              <MovieListsPage t={t} />
+            </Suspense>
+          )}
           {activePage === "adult" && (
             <PinLock sectionName={t("adult_section")}>
-              <AdultSectionPage BASE_URL={BASE_URL} API_KEY={API_KEY} t={t} />
+              <Suspense fallback={<LoadingSpinner />}>
+                <AdultSectionPage BASE_URL={BASE_URL} API_KEY={API_KEY} t={t} />
+              </Suspense>
             </PinLock>
           )}
           {activePage === "home" && (

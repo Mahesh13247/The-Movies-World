@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from "react";
 
 const TrendingCarousel = ({ trending, watchMovie, t, loading }) => {
   const carouselRef = useRef(null);
-  const [isScrolling, setIsScrolling] = React.useState(false);
+  const [_isScrolling, setIsScrolling] = React.useState(false);
   const [canScrollLeft, setCanScrollLeft] = React.useState(false);
   const [canScrollRight, setCanScrollRight] = React.useState(true);
   const [activeIndex, setActiveIndex] = React.useState(0);
@@ -35,7 +35,8 @@ const TrendingCarousel = ({ trending, watchMovie, t, loading }) => {
       updateScrollButtons();
     });
     resizeObserverRef.current.observe(carousel);
-    return () => resizeObserverRef.current && resizeObserverRef.current.disconnect();
+    return () =>
+      resizeObserverRef.current && resizeObserverRef.current.disconnect();
   }, []);
 
   // Keyboard navigation and focus management
@@ -188,10 +189,13 @@ const TrendingCarousel = ({ trending, watchMovie, t, loading }) => {
       scrollTimeout.current = setTimeout(() => setIsScrolling(false), 150);
 
       // Update active index for pagination
-      const itemWidth = carousel.querySelector(".carousel-card")?.offsetWidth || 0;
+      const itemWidth =
+        carousel.querySelector(".carousel-card")?.offsetWidth || 0;
       const gapWidth = 24;
       const itemTotalWidth = itemWidth + gapWidth;
-      const index = Math.round(carousel.scrollLeft / Math.max(itemTotalWidth, 1));
+      const index = Math.round(
+        carousel.scrollLeft / Math.max(itemTotalWidth, 1)
+      );
       setActiveIndex(index);
     };
 
@@ -227,12 +231,16 @@ const TrendingCarousel = ({ trending, watchMovie, t, loading }) => {
     }
     clearInterval(autoplayIntervalRef.current);
     autoplayIntervalRef.current = setInterval(() => {
-      const itemWidth = carousel.querySelector(".carousel-card")?.offsetWidth || 0;
+      const itemWidth =
+        carousel.querySelector(".carousel-card")?.offsetWidth || 0;
       const gapWidth = 24;
       const itemTotalWidth = itemWidth + gapWidth;
       const maxIndex = Math.max(trending.length - 1, 0);
       const nextIndex = Math.min(activeIndex + 1, maxIndex);
-      carousel.scrollTo({ left: nextIndex * itemTotalWidth, behavior: "smooth" });
+      carousel.scrollTo({
+        left: nextIndex * itemTotalWidth,
+        behavior: "smooth",
+      });
     }, 3500);
     return () => clearInterval(autoplayIntervalRef.current);
   }, [isAutoplaying, activeIndex, trending]);
@@ -247,7 +255,8 @@ const TrendingCarousel = ({ trending, watchMovie, t, loading }) => {
   const goToIndex = (index) => {
     const carousel = carouselRef.current;
     if (!carousel) return;
-    const itemWidth = carousel.querySelector(".carousel-card")?.offsetWidth || 0;
+    const itemWidth =
+      carousel.querySelector(".carousel-card")?.offsetWidth || 0;
     const gapWidth = 24;
     const itemTotalWidth = itemWidth + gapWidth;
     setIsAutoplaying(false);
@@ -337,7 +346,11 @@ const TrendingCarousel = ({ trending, watchMovie, t, loading }) => {
               ))}
         </div>
         {trending && trending.length > 1 && (
-          <div className="carousel-dots" role="tablist" aria-label={t("trending_pagination")}>
+          <div
+            className="carousel-dots"
+            role="tablist"
+            aria-label={t("trending_pagination")}
+          >
             {trending.map((_, i) => (
               <button
                 key={i}
