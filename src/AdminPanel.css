@@ -671,16 +671,14 @@
 
 .pin-dots {
   position: absolute;
-  top: 50%;
+  top: -130%;
   left: 50%;
-  transform: translate(-50%, -900%);
+  transform: translate(-50%, -50%);
   display: flex;
   gap: 8px;
   pointer-events: none;
 }
-* {
-  scroll-behavior: smooth;
-}
+
 
 .pin-dot {
   width: 12px;
@@ -4318,6 +4316,55 @@ body.landscape-mode .admin-panel {
   }
   
   .gradientShift {
+    animation: none !important;
+  }
+}
+
+/* Mobile performance hardening: disable heavy effects on touch devices */
+@media (max-width: 768px) and (hover: none) and (pointer: coarse) {
+  .admin-panel {
+    animation: none !important;
+    background-size: auto !important;
+    background-attachment: scroll !important;
+  }
+
+  .admin-header,
+  .admin-content,
+  .search-container,
+  .tab-navigation {
+    backdrop-filter: none !important;
+  }
+
+  .admin-header,
+  .status-indicator,
+  .quick-action-btn,
+  .overview-card,
+  .chart-container,
+  .user-card,
+  .backup-action-card,
+  .notification-dropdown,
+  .modal-content {
+    transition: none !important;
+    box-shadow: none !important;
+  }
+
+  .admin-header::before,
+  .status-indicator::before {
+    display: none !important;
+    content: none !important;
+  }
+
+  .admin-header,
+  .status-indicator,
+  .tab-navigation,
+  .tab-content,
+  .overview-card,
+  .stat-card,
+  .quick-action-btn,
+  .chart-container,
+  .history-row,
+  .table-row,
+  .notification-item {
     animation: none !important;
   }
 }
