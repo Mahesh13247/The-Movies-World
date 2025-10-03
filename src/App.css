@@ -1846,7 +1846,6 @@ a {
     padding: 1px;
     border-radius: 9px;
   }
-
 }
 
 @media (max-width: 700px) {
@@ -2770,7 +2769,7 @@ body[data-theme="light"] .movie-calendar {
 }
 
 .fade-slide {
-  animation: fadeSlideIn 0.55s cubic-bezier(0.4, 2, 0.6, 1);
+  animation: fadeSlideIn 0.55s cubic-bezier(0.4, 4, 0.6, 2);
 }
 @keyframes fadeSlideIn {
   0% {

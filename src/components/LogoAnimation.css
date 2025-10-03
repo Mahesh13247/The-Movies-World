@@ -91,14 +91,17 @@
 .netflix-logo-text {
   font-size: clamp(2.5rem, 7vw, 10rem);
   font-weight: 900;
-  color: #e50914;
+  /* color: #e50914; */
+  /* color: #00ff88; */
+  color: #000000;
   text-transform: uppercase;
   letter-spacing: clamp(1px, 1.2vw, 16px);
-  text-shadow: 
+  /* text-shadow: 
     0 0 10px rgba(229, 9, 20, 0.8),
     0 0 20px rgba(229, 9, 20, 0.6),
     0 0 30px rgba(229, 9, 20, 0.4),
-    0 0 40px rgba(229, 9, 20, 0.2);
+    0 0 40px rgba(229, 9, 20, 0.2); */
+    text-shadow: 0 0 5px #FFF, 0 0 10px #FFF, 0 0 15px #FFF, 0 0 20px #49ff18, 0 0 30px #49FF18, 0 0 40px #49FF18, 0 0 55px #49FF18, 0 0 75px #49ff18;
   position: relative;
   z-index: 2;
   line-height: 1;

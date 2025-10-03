@@ -151,7 +151,7 @@ const AppHeader = ({
             <a href="/" className="logo-link" aria-label="Home">
               <span className="logo-icon">🌟</span>
             </a>
-            <h1 className="main-title">{t("title")}</h1>
+            <h1 className="main-title">Movie Finder</h1>
           </div>
 
           <div
